@@ -1,5 +1,10 @@
 # Cambios
 
+## 3.1.1
+
+- El README enlaza la web oficial y proyectos hechos con Tangerine, como Citrus.
+- `package.json` incluye `homepage`, `repository` y `bugs`, para que npm muestre esos enlaces.
+
 ## 3.1.0
 
 ### Nuevo

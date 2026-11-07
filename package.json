@@ -1,6 +1,6 @@
 {
   "name": "tangerine-lang",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Tangerine: un lenguaje de programación pequeño con la sintaxis de Rust y Swift, para el navegador y Node.js",
   "keywords": [
     "tangerine",

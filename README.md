@@ -30,6 +30,24 @@ for item in canasta.items {
 println("Total: {formato_precio(canasta.total())}")
 ```
 
+**Web oficial, guía y playground:** https://manuelosmadev.github.io/tangerine-lang/
+
+## Hecho con Tangerine
+
+### Citrus
+
+Cliente de APIs para backends serverless. Muestra en una sola pantalla la respuesta, los logs de CloudWatch, el cold start y las filas que cambió en MySQL. La interfaz de la app y su página están escritas en Tangerine.
+
+- Página y descarga para Windows: https://manuelosmadev.github.io/citrus/
+- Código: https://github.com/ManuelOsmaDev/citrus
+
+### La web de Tangerine
+
+El sitio oficial también está escrito en Tangerine: está en la carpeta `sitio/` de este repositorio.
+
+- Web: https://manuelosmadev.github.io/tangerine-lang/
+- Código: https://github.com/ManuelOsmaDev/tangerine-lang
+
 ## Instalar
 
 ```bash

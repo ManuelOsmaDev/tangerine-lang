@@ -5,7 +5,7 @@ import { parser, parse, sx, importsOf } from "./parser.js";
 import { createInterpreter, resolvePath } from "./interprete.js";
 import { show, truthy, makeMap, isMap, typeOf, fromJS, toJS } from "./valores.js";
 
-export const VERSION = "3.1.0";
+export const VERSION = "3.1.1";
 
 const globalPlugins = [];
 
