@@ -1,0 +1,19 @@
+// Un componente de React escrito en Tangerine.
+// h(etiqueta, props, ...hijos) crea elementos; use_state y use_effect son los hooks de siempre.
+import { Contador } from "./Contador.tng"
+
+export fn App(props) {
+  let (nombre, set_nombre) = use_state("")
+
+  h("main", { class: "tarjeta" },
+    h("h1", nil, props.titulo),
+    h("p", { class: "lema" }, "Edita src/App.tng y guarda: Vite recarga la página."),
+    h("input", {
+      placeholder: "¿Cómo te llamas?",
+      value: nombre,
+      on_change: |e| set_nombre(e.value),
+    }),
+    if nombre.is_empty() { nil } else { h("p", nil, "Hola, {nombre} 👋") },
+    h(Contador, { inicio: 0 }),
+  )
+}

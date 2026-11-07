@@ -1,0 +1,19 @@
+// Un programa de terminal. Ejecútalo con:  npm start -- notas.txt
+import { resumen } from "./texto.tng"
+
+let archivo = args().first()
+
+if archivo == nil {
+  println("Uso: npm start -- <archivo>")
+  exit(1)
+}
+if !file_exists(archivo) {
+  println("No existe el archivo {archivo}")
+  exit(1)
+}
+
+let r = resumen(read_file(archivo))
+println("{archivo}")
+println("  líneas:   {r.lineas}")
+println("  palabras: {r.palabras}")
+println("  la más usada: {r.top ?? "—"}")

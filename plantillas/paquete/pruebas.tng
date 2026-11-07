@@ -1,0 +1,6 @@
+import { saludar, repetir } from "./index.tng"
+
+assert(saludar("Ana") == "Hola, Ana!", "saludar usa Hola por defecto")
+assert(saludar("Luis", "Hey") == "Hey, Luis!", "saludar acepta otro saludo")
+assert(repetir("ja", 3) == "ja ja ja", "repetir")
+println("✓ Todas las pruebas pasaron")

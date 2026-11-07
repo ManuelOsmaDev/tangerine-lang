@@ -1,0 +1,13 @@
+export fn resumen(texto) {
+  let palabras = texto.lower().words()
+  var cuenta = {}
+  for p in palabras {
+    cuenta[p] = cuenta.get(p, 0) + 1
+  }
+  let top = cuenta.entries().sorted_by(|a, b| b[1] - a[1]).first()
+  {
+    lineas: texto.lines().len(),
+    palabras: palabras.len(),
+    top: if top == nil { nil } else { "{top[0]} ({top[1]})" },
+  }
+}

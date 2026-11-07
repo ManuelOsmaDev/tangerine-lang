@@ -1,0 +1,14 @@
+{
+  "name": "{{nombre}}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tangerine dev",
+    "build": "tangerine build",
+    "check": "tangerine check src/*.tng"
+  },
+  "devDependencies": {
+    "tangerine-lang": "^{{version}}"
+  }
+}

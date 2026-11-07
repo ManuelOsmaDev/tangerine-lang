@@ -1,0 +1,13 @@
+{
+  "name": "{{nombre}}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tangerine src/main.tng",
+    "check": "tangerine check src/*.tng"
+  },
+  "devDependencies": {
+    "tangerine-lang": "^{{version}}"
+  }
+}

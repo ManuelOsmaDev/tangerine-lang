@@ -1,0 +1,108 @@
+{
+  "name": "tangerine-lang",
+  "version": "3.1.0",
+  "description": "Tangerine: un lenguaje de programación pequeño con la sintaxis de Rust y Swift, para el navegador y Node.js",
+  "keywords": [
+    "tangerine",
+    "lenguaje",
+    "interprete",
+    "interpreter",
+    "programming-language",
+    "rust",
+    "swift",
+    "educacion",
+    "react",
+    "vite"
+  ],
+  "license": "JMSO",
+  "author": "Manuel Osma",
+  "homepage": "https://manuelosmadev.github.io/tangerine-lang/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ManuelOsmaDev/tangerine-lang.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ManuelOsmaDev/tangerine-lang/issues"
+  },
+  "type": "module",
+  "main": "./dist/tangerine.cjs",
+  "module": "./dist/tangerine.mjs",
+  "types": "./types/index.d.ts",
+  "unpkg": "./dist/tangerine.global.min.js",
+  "jsdelivr": "./dist/tangerine.global.min.js",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/tangerine.mjs",
+      "require": "./dist/tangerine.cjs"
+    },
+    "./node": {
+      "types": "./types/node.d.ts",
+      "import": "./src/node.js"
+    },
+    "./dom": {
+      "types": "./types/dom.d.ts",
+      "import": "./src/plugins/dom.js"
+    },
+    "./react": {
+      "types": "./types/react.d.ts",
+      "import": "./src/plugins/react.js"
+    },
+    "./vite": {
+      "types": "./types/vite.d.ts",
+      "import": "./src/vite.js"
+    },
+    "./navegador": "./dist/tangerine.global.min.js",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "tangerine": "bin/tangerine.js"
+  },
+  "files": [
+    "dist",
+    "src",
+    "bin",
+    "types",
+    "plantillas",
+    "editores/vscode/tangerine-vscode.vsix",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": [
+    "./src/navegador.js",
+    "./dist/tangerine.global.js",
+    "./dist/tangerine.global.min.js"
+  ],
+  "scripts": {
+    "build": "node scripts/build.js",
+    "sitio": "node scripts/build.js && cd sitio && node ../bin/tangerine.js build",
+    "test": "npm run build && vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "prepublishOnly": "npm run lint && npm test",
+    "sitio:dev": "node scripts/build.js && cd sitio && node ../bin/tangerine.js dev",
+    "vscode": "cd editores/vscode && npx -y @vscode/vsce@3.2.1 package --allow-missing-repository --skip-license -o tangerine-vscode.vsix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "esbuild": "^0.24.2",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
+    "jsdom": "^25.0.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vitest": "^2.1.8"
+  },
+  "peerDependencies": {
+    "vite": ">=4"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  }
+}

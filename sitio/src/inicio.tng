@@ -1,0 +1,127 @@
+// ════════════════════════════════════════════════
+//  Vista de inicio
+// ════════════════════════════════════════════════
+
+import { make, link, paint_output } from "./ui.tng"
+import { topics, samples, features } from "./contenido.tng"
+
+let engine_sample = 'let juice = 2 + 3 * 4
+println(juice)'
+
+export fn build_home(home) {
+  let page_lines = source().lines().len()
+
+  let hero = make(home, "section", "heroe", nil)
+  let hero_grid = make(hero, "div", "contenedor heroe-rejilla", nil)
+  let hero_text = make(hero_grid, "div", "heroe-texto", nil)
+
+  let notice = link(hero_text, "aviso", nil, "guia-modulos")
+  make(notice, "span", "aviso-punto", nil)
+  make(notice, "span", nil, "Nuevo en 3.1: módulos, paquetes, CLI y componentes de React")
+
+  make(hero_text, "h1", nil, "La elegancia de Rust y Swift, en un lenguaje que cabe en una tarde.")
+  make(hero_text, "p", "heroe-lema", "Tangerine tiene pattern matching, closures, clases, rangos, nil seguro y retorno implícito. Su intérprete no usa dependencias y lo puedes leer de principio a fin.")
+  let actions = make(hero_text, "div", "acciones", nil)
+  link(actions, "boton primario", "Leer la guía", "guia")
+  link(actions, "boton", "Abrir el playground", "playground")
+  make(hero_text, "p", "heroe-nota", "Funciona en el navegador y en Node.js: npm install -g tangerine-lang")
+
+  let scene = make(hero_grid, "div", "escena", nil)
+  let big_fruit = make(scene, "div", "fruta-grande", nil)
+  attr(big_fruit, "aria-hidden", "true")
+  make(big_fruit, "span", "hoja", nil)
+
+  let window_box = make(scene, "div", "ventana", nil)
+  let window_head = make(window_box, "div", "ventana-cab", nil)
+  make(window_head, "span", nil, samples[1].file)
+  make(window_head, "span", "en-vivo", "Ejecutado en tu navegador")
+  highlight(make(window_box, "pre", nil, nil), samples[1].code)
+  paint_output(window_box, run(samples[1].code), "ventana-salida")
+
+  // Features
+  let features_section = make(home, "section", "seccion", nil)
+  let features_inner = make(features_section, "div", "contenedor", nil)
+  let features_head = make(features_inner, "div", "seccion-cab", nil)
+  make(features_head, "h2", nil, "Lo mejor de los lenguajes modernos")
+  make(features_head, "p", nil, "Ideas que vienen de Rust, Swift y Kotlin, en una versión pequeña que puedes entender completa.")
+  let features_grid = make(features_inner, "div", "rejilla-rasgos", nil)
+  for f in features {
+    let card = link(features_grid, "rasgo", nil, "guia-" + f.id)
+    make(card, "span", "rasgo-icono", f.icon)
+    make(card, "h3", nil, f.title)
+    make(card, "p", nil, f.text)
+    make(card, "span", "rasgo-mas", "Ver en la guía")
+  }
+
+  // Instalar
+  let install_section = make(home, "section", "seccion", nil)
+  let install_inner = make(install_section, "div", "contenedor", nil)
+  let install_head = make(install_inner, "div", "seccion-cab", nil)
+  attr(install_section, "id", "instalar")
+  make(install_head, "h2", nil, "Instálalo en un minuto")
+  make(install_head, "p", nil, "Con Node.js 18 o más reciente tienes el REPL, un comando para ejecutar archivos y un generador de proyectos web.")
+  let install_steps = make(install_inner, "ol", "flujo", nil)
+  for (title, text, command) in [
+    ("Instala", "Agrega el comando tangerine a tu terminal.", "npm install -g tangerine-lang"),
+    ("Crea un proyecto", "Una página en Tangerine, o React, Vue, Angular, Swift y más con --con.", "tangerine new mi-app\ntangerine new app --con react"),
+    ("Ejecuta", "Abre el servidor de desarrollo. Al publicar, build crea un solo HTML.", "cd mi-app\nnpm install\nnpm run dev"),
+  ] {
+    let li = make(install_steps, "li", "flujo-paso", nil)
+    make(li, "h3", nil, title)
+    make(li, "p", nil, text)
+    make(make(li, "div", "caja", nil), "pre", nil, command)
+  }
+
+  // How it works
+  let flow_section = make(home, "section", "seccion seccion-suave", nil)
+  let flow_inner = make(flow_section, "div", "contenedor", nil)
+  let flow_head = make(flow_inner, "div", "seccion-cab", nil)
+  make(flow_head, "h2", nil, "Cómo funciona por dentro")
+  make(flow_head, "p", nil, "Un intérprete transforma tu código en tres pasos. Lo que ves abajo es la salida real de cada paso para estas dos líneas.")
+  let input_row = make(flow_inner, "div", "muestra", nil)
+  make(input_row, "span", nil, "Entrada")
+  highlight(make(input_row, "pre", nil, nil), engine_sample)
+
+  let flow = make(flow_inner, "ol", "flujo", nil)
+  fn step(title, text) {
+    let li = make(flow, "li", "flujo-paso", nil)
+    make(li, "h3", nil, title)
+    make(li, "p", nil, text)
+    make(li, "div", "caja", nil)
+  }
+  let box1 = step("Lexer", "Corta el texto en tokens: palabras clave, nombres, números y símbolos.")
+  toggle_class(box1, "fichas", true)
+  for t in tokens(engine_sample) {
+    make(box1, "span", "ficha", t)
+  }
+  let box2 = step("Parser", "Ordena los tokens en un árbol. La multiplicación queda dentro de la suma, por eso se calcula primero.")
+  make(box2, "pre", nil, tree(engine_sample))
+  let box3 = step("Evaluador", "Recorre el árbol, guarda los valores en su entorno y ejecuta cada instrucción.")
+  for line in run(engine_sample).output {
+    make(box3, "pre", nil, line)
+  }
+
+  // This page
+  let page_section = make(home, "section", "seccion", nil)
+  let page_inner = make(page_section, "div", "contenedor pagina-rejilla", nil)
+  let page_text = make(page_inner, "div", "seccion-cab", nil)
+  make(page_text, "h2", nil, "Esta página es un programa de Tangerine")
+  make(page_text, "p", nil, "El HTML solo trae un elemento vacío, los estilos y el intérprete. El inicio, la guía y el playground los crean {module_count()} módulos con {page_lines} líneas de Tangerine.")
+  make(page_text, "p", nil, "El intérprete pesa {engine_kb()} KB y no usa ninguna biblioteca.")
+  let source_box = make(page_inner, "details", "fuente", nil)
+  let source_summary = make(source_box, "summary", nil, nil)
+  make(source_summary, "span", nil, "{module_count()} módulos, {page_lines} líneas")
+  make(source_summary, "span", "fuente-accion", nil)
+  let source_bar = make(source_box, "div", "fuente-barra", nil)
+  let copy_button = make(source_bar, "button", "boton-mini", "Copiar el código")
+  on(copy_button, "click", || copy(source(), copy_button))
+  highlight(make(source_box, "pre", nil, nil), source())
+
+  // Call to action
+  let cta_section = make(home, "section", "contenedor cta", nil)
+  let cta = make(cta_section, "div", "cta-caja", nil)
+  let cta_text = make(cta, "div", nil, nil)
+  make(cta_text, "h2", nil, "Aprende Tangerine en una tarde")
+  make(cta_text, "p", nil, "La guía tiene {topics.len()} temas cortos, y cada uno trae ejemplos que puedes ejecutar.")
+  link(cta, "boton primario", "Empezar la guía", "guia")
+}

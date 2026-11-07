@@ -1,0 +1,10 @@
+// Punto de entrada del paquete: lo que exportes aquí es lo que otros importan con
+//   import { saludar } from "{{nombre}}"
+
+export fn saludar(nombre, saludo = "Hola") {
+  "{saludo}, {nombre}!"
+}
+
+export fn repetir(texto, veces = 2) {
+  (1..=veces).map(|_| texto).join(" ")
+}

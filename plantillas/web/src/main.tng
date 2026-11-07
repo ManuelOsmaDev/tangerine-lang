@@ -1,0 +1,22 @@
+import { crear_contador } from "./contador.tng"
+
+let app = query("#app")
+
+fn crear(padre, etiqueta, clase, texto) {
+  append(padre, el(etiqueta, clase, texto))
+}
+
+let tarjeta = crear(app, "main", "tarjeta", nil)
+crear(tarjeta, "h1", nil, "Hola desde Tangerine")
+crear(tarjeta, "p", "lema", "Edita src/main.tng y guarda: la página se recarga sola.")
+
+let contador = crear_contador(0)
+let numero = crear(tarjeta, "p", "numero", contador.valor())
+let botones = crear(tarjeta, "div", "botones", nil)
+
+fn pintar() {
+  set_text(numero, contador.valor())
+}
+
+on(crear(botones, "button", "boton", "−"), "click", || { contador.restar(); pintar() })
+on(crear(botones, "button", "boton primario", "+"), "click", || { contador.sumar(); pintar() })

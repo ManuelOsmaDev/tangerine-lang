@@ -1,0 +1,14 @@
+export fn Contador(props) {
+  let (n, set_n) = use_state(props.inicio ?? 0)
+
+  // Se ejecuta cada vez que cambia n (míralo en la consola del navegador)
+  use_effect(|| {
+    println("El contador va en {n}")
+  }, [n])
+
+  h("div", { class: "botones" },
+    h("button", { class: "boton", on_click: || set_n(|x| x - 1) }, "−"),
+    h("span", { class: "numero" }, n),
+    h("button", { class: "boton primario", on_click: || set_n(|x| x + 1) }, "+"),
+  )
+}

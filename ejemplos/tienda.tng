@@ -1,0 +1,22 @@
+// Módulo con utilidades de la tienda.
+
+export fn formato_precio(n) {
+  let texto = n.round().to_string()
+  var partes = []
+  var resto = texto
+  while resto.len() > 3 {
+    partes.insert(0, resto.slice(resto.len() - 3))
+    resto = resto.slice(0, resto.len() - 3)
+  }
+  partes.insert(0, resto)
+  "$" + partes.join(".")
+}
+
+export class Producto {
+  init(nombre, kilos, precio) {
+    self.nombre = nombre
+    self.kilos = kilos
+    self.precio = precio
+  }
+  fn valor() { self.kilos * self.precio }
+}

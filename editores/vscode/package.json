@@ -1,0 +1,52 @@
+{
+  "name": "tangerine-vscode",
+  "displayName": "Tangerine",
+  "description": "Colores de sintaxis, fragmentos y ajustes para el lenguaje Tangerine (.tng)",
+  "version": "3.1.0",
+  "publisher": "tangerine-lang",
+  "license": "MIT",
+  "icon": "icono.png",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "tangerine",
+    "tng"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "tangerine",
+        "aliases": [
+          "Tangerine",
+          "tangerine"
+        ],
+        "extensions": [
+          ".tng"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icono.png",
+          "dark": "./icono.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "tangerine",
+        "scopeName": "source.tangerine",
+        "path": "./syntaxes/tangerine.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "tangerine",
+        "path": "./snippets/tangerine.json"
+      }
+    ]
+  }
+}

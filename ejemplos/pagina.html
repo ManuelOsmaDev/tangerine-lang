@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tangerine sin instalar nada</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- El intérprete desde un CDN: ejecuta solo los scripts de Tangerine -->
+  <script src="https://cdn.jsdelivr.net/npm/tangerine-lang@3.1.0/dist/tangerine.global.min.js"></script>
+
+  <script type="text/tangerine">
+    let app = query("#app")
+    let titulo = append(app, el("h1", nil, "Hola"))
+    let campo = append(app, el("input"))
+    attr(campo, "placeholder", "Escribe tu nombre")
+    on(campo, "input", |e| set_text(titulo, "Hola, {e.value}"))
+  </script>
+</body>
+</html>

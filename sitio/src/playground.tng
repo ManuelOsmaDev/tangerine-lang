@@ -1,0 +1,90 @@
+// ════════════════════════════════════════════════
+//  Vista del playground
+// ════════════════════════════════════════════════
+
+import { make, set_playground_opener } from "./ui.tng"
+import { samples } from "./contenido.tng"
+
+export fn build_playground(pg) {
+  let pg_inner = make(pg, "div", "contenedor pg", nil)
+  let pg_head = make(pg_inner, "div", "pg-cab", nil)
+  let pg_titles = make(pg_head, "div", nil, nil)
+  make(pg_titles, "h1", nil, "Playground")
+  make(pg_titles, "p", "pg-intro", "Escribe Tangerine y ejecútalo. Tu código se guarda en este navegador.")
+  let run_button = make(pg_head, "button", "boton primario", "Ejecutar")
+
+  let chips = make(pg_inner, "div", "chips", nil)
+  attr(chips, "aria-label", "Ejemplos")
+
+  let pg_table = make(pg_inner, "div", "pg-mesa", nil)
+  let pg_editor = make(pg_table, "div", "panel", nil)
+  let pg_editor_head = make(pg_editor, "div", "panel-cab", nil)
+  make(pg_editor_head, "span", nil, "main.tng")
+  make(pg_editor_head, "span", nil, "Ctrl + Enter ejecuta")
+  let editor = make(pg_editor, "textarea", "editor", nil)
+  attr(editor, "id", "editor")
+  attr(editor, "spellcheck", "false")
+  attr(editor, "wrap", "off")
+  attr(editor, "aria-label", "Código de Tangerine")
+
+  let pg_output = make(pg_table, "div", "panel", nil)
+  let pg_output_head = make(pg_output, "div", "panel-cab", nil)
+  make(pg_output_head, "span", nil, "Salida")
+  let timing = make(pg_output_head, "span", nil, "")
+  let output = make(pg_output, "div", "salida", nil)
+  attr(output, "aria-live", "polite")
+
+  fn run_editor() {
+    let code = value(editor)
+    save("tangerine-draft-v3", code)
+    let start = now()
+    let result = run(code)
+    let ms = (now() - start).round(1)
+    clear(output)
+    for line in result.output {
+      make(output, "div", "linea", line)
+    }
+    if result.error != nil {
+      make(output, "div", "linea error", result.error)
+      for paso in result.trace ?? [] {
+        make(output, "div", "linea tenue", "  " + paso)
+      }
+    }
+    if result.output.is_empty() && result.error == nil {
+      make(output, "div", "linea tenue", "El programa terminó sin escribir nada.")
+    }
+    set_text(timing, "{ms} ms")
+  }
+
+  let sample_buttons = []
+  fn load_code(code, index) {
+    set_value(editor, code)
+    for (i, b) in sample_buttons.enumerate() {
+      toggle_class(b, "activo", i == index)
+    }
+    run_editor()
+  }
+
+  fn open_in_playground(code) {
+    load_code(code, -1)
+    go("playground")
+  }
+
+  for (i, s) in samples.enumerate() {
+    let b = make(chips, "button", "chip", s.file)
+    sample_buttons.push(b)
+    on(b, "click", || load_code(s.code, i))
+  }
+
+  on(run_button, "click", run_editor)
+  on_shortcut(editor, run_editor)
+
+  let draft = load("tangerine-draft-v3")
+  if draft != nil && !draft.trim().is_empty() {
+    load_code(draft, -1)
+  } else {
+    load_code(samples[0].code, 0)
+  }
+
+  set_playground_opener(open_in_playground)
+}

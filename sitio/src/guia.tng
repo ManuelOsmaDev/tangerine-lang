@@ -1,0 +1,77 @@
+// ════════════════════════════════════════════════
+//  Vista de la guía
+// ════════════════════════════════════════════════
+
+import { make, link, rich_text, CodeBlock } from "./ui.tng"
+import { topics } from "./contenido.tng"
+
+let topic_links = {}
+
+export fn mark_topic(id) {
+  for (key, a) in topic_links {
+    toggle_class(a, "activo", key == id)
+  }
+}
+
+export fn build_guide(guide) {
+  let guide_grid = make(guide, "div", "contenedor guia-rejilla", nil)
+  let sidebar = make(guide_grid, "aside", "lateral", nil)
+  let guide_nav = make(sidebar, "nav", "lateral-nav", nil)
+  attr(guide_nav, "aria-label", "Temas de la guía")
+  let content = make(guide_grid, "div", "guia-contenido", nil)
+  let guide_head = make(content, "header", "guia-cab", nil)
+  make(guide_head, "h1", nil, "Guía de Tangerine")
+  make(guide_head, "p", "guia-intro", "Todo el lenguaje en {topics.len()} temas. Léela en orden o salta al tema que necesites.")
+
+  fn paint_table(parent, table) {
+    let frame = make(parent, "div", "tabla-marco", nil)
+    let t = make(frame, "table", nil, nil)
+    let head_row = make(make(t, "thead", nil, nil), "tr", nil, nil)
+    for c in table.columns {
+      make(head_row, "th", nil, c)
+    }
+    let body = make(t, "tbody", nil, nil)
+    for row in table.rows {
+      let tr = make(body, "tr", nil, nil)
+      for cell in row {
+        rich_text(make(tr, "td", nil, nil), cell)
+      }
+    }
+  }
+
+  fn paint_topic(parent, topic) {
+    let s = make(parent, "section", "tema", nil)
+    attr(s, "id", "tema-" + topic.id)
+    make(s, "h2", nil, topic.title)
+    for p in topic.paragraphs {
+      rich_text(make(s, "p", nil, nil), p)
+    }
+    CodeBlock(s, topic.code, { runnable: topic.runnable, file: topic.id + ".tng" })
+    if topic.table != nil {
+      paint_table(s, topic.table)
+    }
+    if topic.tip != nil {
+      let tip = make(s, "aside", "nota", nil)
+      make(tip, "strong", nil, "Consejo")
+      rich_text(make(tip, "p", nil, nil), topic.tip)
+    }
+    when_visible(s, || mark_topic(topic.id))
+  }
+
+  var current_group = nil
+  var group_list = nil
+  for topic in topics {
+    if topic.group != current_group {
+      current_group = topic.group
+      make(guide_nav, "p", "lateral-grupo", topic.group)
+      group_list = make(guide_nav, "ul", nil, nil)
+    }
+    let item = make(group_list, "li", nil, nil)
+    topic_links[topic.id] = link(item, "lateral-enlace", topic.title, "guia-" + topic.id)
+    paint_topic(content, topic)
+  }
+
+  let guide_end = make(content, "div", "guia-final", nil)
+  make(guide_end, "p", nil, "Ya conoces todo el lenguaje. Prueba lo que aprendiste:")
+  link(guide_end, "boton primario", "Abrir el playground", "playground")
+}

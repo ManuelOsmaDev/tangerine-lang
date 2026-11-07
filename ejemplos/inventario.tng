@@ -1,0 +1,23 @@
+// Lee un inventario en JSON, calcula totales y escribe un reporte.
+// tangerine ejemplos/inventario.tng
+import { formato_precio, Producto } from "./tienda.tng"
+
+let datos = [
+  { nombre: "mandarina", kilos: 40, precio: 3200 },
+  { nombre: "limón", kilos: 12, precio: 2800 },
+  { nombre: "pomelo", kilos: 0, precio: 4100 },
+]
+
+let productos = datos.map(|d| Producto(d.nombre, d.kilos, d.precio))
+
+for p in productos.sorted_by_key(|p| -p.valor()) {
+  let estado = match p.kilos {
+    0 => "agotado",
+    1..10 => "quedan pocos",
+    _ => "{p.kilos} kg",
+  }
+  println("{p.nombre.capitalize().pad_end(10)} {estado.pad_end(14)} {formato_precio(p.valor())}")
+}
+
+let total = productos.fold(0, |s, p| s + p.valor())
+println("Total en bodega: {formato_precio(total)}")

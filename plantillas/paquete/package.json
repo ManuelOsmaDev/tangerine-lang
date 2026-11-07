@@ -1,0 +1,15 @@
+{
+  "name": "{{nombre}}",
+  "version": "0.1.0",
+  "description": "Un paquete de Tangerine",
+  "type": "module",
+  "tangerine": "index.tng",
+  "files": ["index.tng", "src", "README.md"],
+  "keywords": ["tangerine", "tangerine-paquete"],
+  "scripts": {
+    "test": "tangerine pruebas.tng"
+  },
+  "devDependencies": {
+    "tangerine-lang": "^{{version}}"
+  }
+}

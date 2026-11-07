@@ -1,0 +1,732 @@
+// ════════════════════════════════════════════════
+//  Contenido: temas de la guía, ejemplos y rasgos
+// ════════════════════════════════════════════════
+
+export let topics = [
+  {
+    id: "introduccion",
+    group: "Empezar",
+    title: "Primeros pasos",
+    paragraphs: [
+      'Tangerine es un lenguaje de programación pequeño con la sintaxis de Rust y Swift: llaves sin paréntesis, `match`, rangos, closures y retorno implícito. Es lo bastante pequeño para que puedas leer su intérprete completo.',
+      'Cada ejemplo de esta guía muestra su salida real, calculada en tu navegador al abrir la página. Con el botón de cada bloque lo llevas al playground para modificarlo.',
+      '`println` escribe uno o varios valores separados por espacios y termina la línea. `print` escribe sin terminarla. El punto y coma al final es opcional.',
+    ],
+    code: 'println("Hello, world!")
+println("Tangerine", 3.0, true)
+
+print("Same ")
+print("line")
+println()
+
+// This is a comment',
+    tip: 'Los comentarios de una línea empiezan con `//`. Para comentarios largos usa `/*` y `*/`.',
+  },
+  {
+    id: "variables",
+    group: "Empezar",
+    title: "Variables",
+    paragraphs: [
+      'Como en Swift, `let` crea un valor que no se puede reasignar y `var` crea una variable que sí puede cambiar. Usa `let` siempre que puedas: el intérprete te avisa si intentas cambiarlo.',
+      'Puedes anotar el tipo después de dos puntos, como `let price: Int = 1500`. Las anotaciones documentan tu código; el intérprete las acepta pero no las comprueba.',
+      'Con paréntesis puedes desarmar una lista en varias variables a la vez: `let (a, b) = (1, 2)`.',
+    ],
+    code: 'let name = "Tangerine"
+var count: Int = 3
+count += 2
+println(name, count)
+
+let (x, y) = (10, 20)
+println(x + y)
+
+do {
+  name = "Lime"
+} catch e {
+  println(e.message)
+}',
+  },
+  {
+    id: "tipos",
+    group: "Empezar",
+    title: "Tipos de datos",
+    paragraphs: [
+      'Cada valor tiene un tipo y `type_of` te dice cuál es. Los números enteros son `Int` y los que tienen decimales son `Float`. `nil` representa la ausencia de un valor.',
+    ],
+    code: 'println(type_of(42), type_of(3.14))
+println(type_of("hi"), type_of(true), type_of(nil))
+println(type_of([1, 2, 3]), type_of({ kg: 2 }))
+println(type_of(|x| x * 2))',
+    table: {
+      columns: ["Tipo", "Ejemplos"],
+      rows: [
+        ["`Int`, `Float`", '`42`, `3.14`, `1_000_000`'],
+        ["`String`", '`"hola {nombre}"`, `\'sin llaves\'`'],
+        ["`Bool`", '`true`, `false`'],
+        ["`Nil`", '`nil`'],
+        ["`List`", '`[1, 2, 3]`, `(1, "two")`, `0..5`'],
+        ["`Map`", '`{ name: "Ana", age: 30 }`'],
+        ["`Fn`", '`fn square(x) { x * x }`, `|x| x * x`'],
+        ["`Class`", '`class Fruit { }`. Sus instancias tienen el nombre de la clase como tipo.'],
+      ],
+    },
+    tip: 'Separa los dígitos de un número largo con guiones bajos para leerlo mejor: `1_000_000`.',
+  },
+  {
+    id: "operadores",
+    group: "Empezar",
+    title: "Operadores",
+    paragraphs: [
+      'Los aritméticos son `+`, `-`, `*`, `/`, `%` (resto) y `**` (potencia). Dividir entre cero es un error, no un resultado raro.',
+      'Para comparar usa `==`, `!=`, `<`, `>`, `<=` y `>=`. Las listas se comparan por su contenido. Los lógicos son `&&`, `||` y `!`.',
+      '`a ?? b` da `b` solo cuando `a` es `nil`. `0..5` crea el rango del 0 al 4 y `0..=5` incluye el 5.',
+    ],
+    code: 'println(7 % 3, 2 ** 10, 10 / 4)
+println(10 > 3 && "a" < "b", !(1 > 2))
+println([1, 2] == [1, 2])
+
+let nickname = nil
+println(nickname ?? "no nickname")
+println(0..5, 1..=3)
+
+var total = 100
+total += 50
+total *= 2
+println(total)',
+    tip: 'Como en Rust y Swift, solo `false` y `nil` cuentan como falsos en una condición. El `0` y el texto vacío `""` son verdaderos.',
+  },
+  {
+    id: "textos",
+    group: "Lo básico",
+    title: "Strings",
+    paragraphs: [
+      'Con comillas dobles metes cualquier expresión entre llaves: `"Hola {nombre}"`. Con comillas simples el texto queda tal cual.',
+      'Los strings tienen métodos que devuelven un string nuevo sin cambiar el original. `+` une strings y `*` los repite.',
+    ],
+    code: 'let fruit = "mandarin"
+let kilos = 2.5
+println("I bought {kilos} kg of {fruit}")
+println("Shouting: {fruit.upper()}!")
+println(\'Raw: {fruit}\')
+
+println(fruit.len(), fruit.slice(0, 3), fruit.capitalize())
+println("lime,lemon,grapefruit".split(","))
+println("42".parse() + 1, "ha" * 3)
+println(fruit.replace("a", "o"), fruit.reversed())',
+    table: {
+      columns: ["Método", "Qué hace"],
+      rows: [
+        ['`len()`, `is_empty()`', 'Cantidad de letras, y si no tiene ninguna.'],
+        ['`upper()`, `lower()`, `capitalize()`', 'Cambia mayúsculas y minúsculas.'],
+        ['`trim()`', 'Quita los espacios del inicio y del final.'],
+        ['`split(sep)`, `lines()`, `words()`, `chars()`', 'Parte el texto en una lista.'],
+        ['`replace(a, b)`', 'Cambia todas las apariciones de `a` por `b`.'],
+        ['`contains(x)`, `starts_with(x)`, `ends_with(x)`', 'Busca un texto dentro de otro.'],
+        ['`slice(desde, hasta)`, `index_of(x)`', 'Saca un pedazo o encuentra una posición.'],
+        ['`parse()`', 'Convierte a número, o da `nil` si no se puede.'],
+        ['`repeat(n)`, `pad_start(n, c)`, `reversed()`', 'Repite, rellena o invierte el texto.'],
+      ],
+    },
+    tip: 'Para escribir una llave literal dentro de comillas dobles, escápala: `\\{`.',
+  },
+  {
+    id: "control",
+    group: "Lo básico",
+    title: "if y else",
+    paragraphs: [
+      '`if` ejecuta un bloque cuando se cumple la condición. Encadena casos con `else if` y cierra con `else`. La condición no lleva paréntesis y las llaves son obligatorias.',
+      'Como en Rust, `if` también es una expresión: devuelve el valor de la última línea del bloque que se ejecutó. Así puedes asignarlo directamente.',
+    ],
+    code: 'let temperature = 31
+
+if temperature > 30 {
+  println("Hot")
+} else if temperature > 18 {
+  println("Nice")
+} else {
+  println("Cold")
+}
+
+let drink = if temperature > 25 { "lemonade" } else { "tea" }
+println("Today: {drink}")',
+  },
+  {
+    id: "match",
+    group: "Lo básico",
+    title: "match",
+    paragraphs: [
+      '`match` compara un valor con varios patrones, en orden, y ejecuta el primero que coincide. Es la forma más clara de escribir muchas condiciones.',
+      'Un patrón puede ser un valor (`"lime"`), un rango (`90..=100`), varias opciones separadas por `|`, un nombre que captura el valor, o `_`, que acepta cualquier cosa. Después del patrón puedes agregar una condición con `if`.',
+      'Si ningún patrón coincide, el programa se detiene con un error. Por eso conviene terminar con `_ =>`.',
+    ],
+    code: 'fn grade(score) {
+  match score {
+    90..=100 => "A",
+    80..90 => "B",
+    60..80 => "C",
+    n if n < 0 => "invalid score: {n}",
+    _ => "F",
+  }
+}
+
+println(grade(95), grade(84), grade(40), grade(-3))
+
+fn kind(fruit) {
+  match fruit {
+    "lime" | "lemon" => "sour",
+    "mandarin" | "orange" => "sweet",
+    _ => "unknown",
+  }
+}
+println(kind("lime"), kind("orange"), kind("kiwi"))',
+  },
+  {
+    id: "bucles",
+    group: "Lo básico",
+    title: "Bucles",
+    paragraphs: [
+      '`for x in ...` recorre listas, rangos, strings y mapas. Con `.enumerate()` recibes la posición y el valor, y con paréntesis los separas en dos variables.',
+      '`while` repite mientras la condición sea verdadera. `loop` repite para siempre, hasta que lo detengas con `break`. `continue` salta a la siguiente vuelta.',
+    ],
+    code: 'for i in 1..=3 {
+  print(i, "")
+}
+println()
+
+for (i, fruit) in ["lime", "lemon", "mandarin"].enumerate() {
+  println("{i}: {fruit}")
+}
+
+for (key, value) in { kg: 2, price: 3000 } {
+  println(key, "=", value)
+}
+
+var n = 1
+loop {
+  n *= 3
+  if n > 100 { break }
+}
+println(n)',
+  },
+  {
+    id: "funciones",
+    group: "Funciones",
+    title: "Funciones",
+    paragraphs: [
+      'Declara funciones con `fn`. Puedes anotar los tipos de los parámetros y del resultado con `->`.',
+      'Como en Rust, una función devuelve el valor de su última línea, sin escribir `return`. Usa `return` solo para salir antes.',
+      'Los parámetros pueden tener un valor por defecto con `=`, que se usa cuando no pasas ese argumento. Los que faltan sin valor por defecto valen `nil`.',
+      'Si algo falla dentro de una función, el error muestra el rastro de llamadas: qué función llamó a cuál y en qué línea.',
+    ],
+    code: 'fn square(x: Int) -> Int {
+  x * x
+}
+
+fn greet(name: String, greeting = "Hello") -> String {
+  "{greeting}, {name}!"
+}
+
+fn first_even(numbers) {
+  for n in numbers {
+    if n.is_even() { return n }
+  }
+  nil
+}
+
+println(square(12))
+println(greet("Ana"), greet("Luis", "Hey"))
+println(first_even([3, 7, 8, 10]))',
+  },
+  {
+    id: "closures",
+    group: "Funciones",
+    title: "Closures",
+    paragraphs: [
+      'Un closure es una función sin nombre que se escribe entre barras, al estilo de Rust: `|x| x * 2`. Si no recibe nada, se escribe `||`. Si necesita varias líneas, usa llaves.',
+      'Un closure recuerda las variables del lugar donde fue creado, aunque ese lugar ya haya terminado. Así puedes crear funciones con estado propio.',
+    ],
+    code: 'let double = |x| x * 2
+let add = |a, b| a + b
+println(double(21), add(2, 3))
+
+let prices = [1200, 800, 3500, 450]
+println(prices.map(|p| p * 2))
+println(prices.filter(|p| p > 1000))
+println(prices.fold(0, |total, p| total + p))
+
+fn counter() {
+  var count = 0
+  || {
+    count += 1
+    count
+  }
+}
+let next = counter()
+next()
+next()
+println("count:", next())',
+  },
+  {
+    id: "listas",
+    group: "Datos",
+    title: "Listas",
+    paragraphs: [
+      'Las listas guardan valores en orden entre corchetes. Las posiciones empiezan en 0 y las negativas cuentan desde el final: `list[-1]` es el último.',
+      '`push`, `pop`, `insert` y `remove` cambian la lista. Los demás métodos devuelven una lista nueva y dejan la original igual, así que puedes encadenarlos.',
+    ],
+    code: 'var fruits = ["lime", "mandarin", "lemon"]
+fruits.push("grapefruit")
+println(fruits[0], fruits[-1], fruits.len())
+println(fruits.sorted())
+println(fruits.contains("lime"), fruits.index_of("lemon"))
+println(fruits.join(" + "))
+
+let evens = (1..=10)
+  .filter(|n| n.is_even())
+  .map(|n| n * n)
+println(evens, evens.sum())',
+    table: {
+      columns: ["Método", "Qué hace"],
+      rows: [
+        ['`push(x)`, `pop()`, `insert(i, x)`, `remove(i)`', 'Agregan o quitan elementos. Cambian la lista.'],
+        ['`map(f)`, `filter(f)`', 'Transforman o filtran cada elemento.'],
+        ['`fold(inicial, f)`, `reduce(f)`', 'Combinan todo en un solo valor.'],
+        ['`find(f)`, `position(f)`', 'Primer elemento que cumple `f`, o su posición.'],
+        ['`any(f)`, `all(f)`, `count(f)`', 'Si alguno o todos cumplen `f`, o cuántos.'],
+        ['`contains(x)`, `index_of(x)`', 'Si la lista tiene `x`, y dónde.'],
+        ['`sorted()`, `sorted_by(f)`, `sorted_by_key(f)`, `reversed()`', 'Copias ordenadas o invertidas.'],
+        ['`enumerate()`, `zip(otra)`, `chunks(n)`', 'Pares posición y valor, pares de dos listas, o grupos de `n`.'],
+        ['`slice(a, b)`, `take(n)`, `skip(n)`', 'Copias de un pedazo de la lista.'],
+        ['`unique()`, `flatten()`, `join(sep)`', 'Sin repetidos, aplanada, o unida en un string.'],
+        ['`len()`, `is_empty()`, `sum()`, `min()`, `max()`, `first()`, `last()`', 'Datos rápidos sobre la lista.'],
+      ],
+    },
+  },
+  {
+    id: "mapas",
+    group: "Datos",
+    title: "Mapas",
+    paragraphs: [
+      'Un mapa agrupa valores con nombre entre llaves. Lee y cambia sus campos con un punto o con corchetes. Si escribes solo `{ name }`, se usa la variable `name` como clave y valor.',
+      'Leer un campo que no existe da `nil`. Con `?.` puedes encadenar lecturas sin que el programa falle cuando algo en el camino es `nil`.',
+    ],
+    code: 'let name = "Sweet mandarin"
+let product = {
+  name,
+  price: 3200,
+  origin: nil,
+}
+
+product.price -= 200
+product["stock"] = 40
+
+println(product.name, product.price)
+println(product.origin?.country ?? "unknown origin")
+println(product.keys())
+println(product.has("stock"))
+println(product)',
+    table: {
+      columns: ["Método", "Qué hace"],
+      rows: [
+        ['`keys()`, `values()`, `entries()`', 'Listas con las claves, los valores o los pares.'],
+        ['`has(clave)`', 'Si la clave existe.'],
+        ['`get(clave, defecto)`', 'El valor, o `defecto` si no existe.'],
+        ['`remove(clave)`', 'Borra la clave y devuelve su valor.'],
+        ['`len()`, `is_empty()`', 'Cuántas claves tiene.'],
+      ],
+    },
+  },
+  {
+    id: "clases",
+    group: "Datos",
+    title: "Clases",
+    paragraphs: [
+      'Una clase agrupa datos y comportamiento. Declara campos con valor inicial usando `var` o `let`, y escribe `init` para preparar cada instancia. Dentro de los métodos, `self` es la instancia actual.',
+      'Como en Swift, creas instancias llamando a la clase como una función, sin `new`. Para heredar escribe `class Hija : Padre`, y usa `super` para llamar a la versión del padre.',
+    ],
+    code: 'class Fruit {
+  var price = 0
+
+  init(name, price) {
+    self.name = name
+    self.price = price
+  }
+
+  fn describe() -> String {
+    "{self.name} at ${self.price}"
+  }
+}
+
+class Mandarin : Fruit {
+  let segments = 10
+
+  init(price) {
+    super.init("mandarin", price)
+  }
+
+  fn describe() -> String {
+    super.describe() + " with {self.segments} segments"
+  }
+}
+
+let m = Mandarin(3200)
+println(m.describe())
+println(type_of(m))
+println(m)',
+    tip: 'Si un método devuelve `self`, puedes encadenar llamadas: `basket.add(a).add(b)`. También puedes escribir `struct` en vez de `class`; funcionan igual.',
+  },
+  {
+    id: "errores",
+    group: "Datos",
+    title: "Errores",
+    paragraphs: [
+      'Cuando algo sale mal, el programa se detiene con un error. Envuelve el código en `do` y atrápalo con `catch`, como en Swift.',
+      'El error llega como un mapa con `message` y `line`. Si no le pones nombre, se llama `error`. Con `throw` lanzas tus propios errores: un string o un mapa con `message`.',
+    ],
+    code: 'fn split_bill(total, people) {
+  if people == 0 {
+    throw "Cannot split a bill between 0 people"
+  }
+  total / people
+}
+
+do {
+  println(split_bill(12, 4))
+  println(split_bill(12, 0))
+} catch e {
+  println("Error:", e.message)
+}
+
+do {
+  let x = missing + 1
+} catch {
+  println("Line {error.line}: {error.message}")
+}',
+  },
+  {
+    id: "modulos",
+    group: "Proyectos",
+    title: "Módulos",
+    paragraphs: [
+      'Un programa grande se divide en archivos. Lo que marcas con `export` (funciones, valores o clases) se puede usar desde otro archivo con `import`.',
+      'Cada módulo tiene su propio ámbito: lo que no exportas queda privado. Un módulo se ejecuta una sola vez, aunque lo importen varios archivos.',
+      'Las rutas son relativas al archivo que importa y la extensión `.tng` es opcional. Con `as` le cambias el nombre a lo que importas.',
+    ],
+    code: '// fruta.tng
+export let IVA = 0.19
+
+export fn precio_final(precio) {
+  (precio * (1 + IVA)).round()
+}
+
+export class Canasta {
+  var items = []
+  fn add(x) { self.items.push(x); self }
+}
+
+// main.tng
+import { precio_final, Canasta as Cesta } from "./fruta.tng"
+import fruta from "./fruta"
+
+println(precio_final(1000), fruta.IVA)
+println(Cesta().add("lime").items)',
+    runnable: false,
+    table: {
+      columns: ["Forma", "Qué hace"],
+      rows: [
+        ['`export fn`, `export let`, `export class`', 'Hace visible una declaración para otros archivos.'],
+        ['`import { a, b } from "./x.tng"`', 'Trae nombres concretos.'],
+        ['`import { a as b } from "./x"`', 'Trae un nombre y lo renombra.'],
+        ['`import x from "./x.tng"`', 'Trae todo el módulo como un mapa: `x.a`, `x.b`.'],
+      ],
+    },
+    tip: 'Si dos módulos se importan entre sí, Tangerine avisa con un error de importación circular. Mueve lo que comparten a un tercer archivo.',
+  },
+  {
+    id: "instalar",
+    group: "Proyectos",
+    title: "Instalar y crear proyectos",
+    paragraphs: [
+      'Instala Tangerine con `npm install -g tangerine-lang` y tendrás el comando `tangerine`. Sin argumentos abre un REPL donde pruebas código línea por línea.',
+      'Fuera del navegador hay funciones para trabajar con archivos: `read_file`, `write_file`, `file_exists`, `list_dir`, `args()` y `env(nombre)`.',
+      '`tangerine new` crea un proyecto web con módulos y recarga automática. `tangerine build` lo empaqueta en un solo `index.html` que puedes publicar en cualquier hosting estático.',
+    ],
+    code: '// contar.tng   ->   tangerine contar.tng notas.txt
+let archivo = args().first() ?? "notas.txt"
+
+if !file_exists(archivo) {
+  println("No existe {archivo}")
+  exit(1)
+}
+
+let texto = read_file(archivo)
+println("{archivo}: {texto.lines().len()} líneas, {texto.words().len()} palabras")',
+    runnable: false,
+    table: {
+      columns: ["Comando", "Qué hace"],
+      rows: [
+        ['`tangerine`', 'Abre el REPL interactivo.'],
+        ['`tangerine archivo.tng`', 'Ejecuta un archivo. Los argumentos extra llegan en `args()`.'],
+        ['`tangerine check *.tng`', 'Revisa la sintaxis sin ejecutar.'],
+        ['`tangerine new mi-app`', 'Crea un proyecto web nuevo. Con `--con react`, `vue`, `svelte`, `angular`, `next`, `astro`, `expo`, `swift`, `flutter`, `consola` o `paquete` usa otra plantilla.'],
+        ['`tangerine dev`', 'Construye, sirve en localhost:3000 y recarga al guardar.'],
+        ['`tangerine build`', 'Empaqueta el proyecto según `tangerine.json`.'],
+        ['`tangerine install node git swift…`', 'Instala herramientas con winget, Homebrew o npm. Pregunta antes de ejecutar.'],
+        ['`tangerine doctor`', 'Revisa qué herramientas tienes instaladas.'],
+        ['`tangerine vscode`', 'Instala la extensión de Tangerine para VS Code.'],
+      ],
+    },
+  },
+  {
+    id: "paquetes",
+    group: "Proyectos",
+    title: "Paquetes",
+    paragraphs: [
+      'Los paquetes de Tangerine se publican en npm. `tangerine add colores` instala uno y `tangerine add usuario/repo` lo trae directo de GitHub.',
+      'Un paquete se importa por su nombre, sin `./`. También puedes importar un archivo de adentro: `import { rojo } from "colores/paleta"`.',
+      'Para crear el tuyo usa `tangerine new mi-paquete --con paquete`. El campo `"tangerine"` de su `package.json` dice cuál es el archivo de entrada.',
+    ],
+    code: '// tangerine add colores
+import { NARANJA, mezclar } from "colores"
+import paleta from "colores/paleta"
+
+println(mezclar(NARANJA, paleta.blanco))',
+    runnable: false,
+    table: {
+      columns: ["Comando", "Qué hace"],
+      rows: [
+        ['`tangerine add nombre`', 'Instala un paquete de npm.'],
+        ['`tangerine add usuario/repo`', 'Instala un paquete desde GitHub.'],
+        ['`tangerine remove nombre`', 'Lo desinstala.'],
+        ['`tangerine buscar texto`', 'Busca paquetes de Tangerine publicados en npm.'],
+      ],
+    },
+  },
+  {
+    id: "react",
+    group: "Proyectos",
+    title: "React y Vite",
+    paragraphs: [
+      'Con `tangerine new mi-app --con react` tienes React y Vite con componentes escritos en Tangerine. Desde JavaScript se importan como cualquier módulo: `import { App } from "./App.tng"`.',
+      '`h(etiqueta, props, ...hijos)` crea elementos, y `use_state`, `use_effect`, `use_memo` y `use_ref` son los hooks de siempre. Los eventos van en props como `on_click` o `on_change` y reciben un mapa con `value`, `key` y `prevent()`.',
+      'En proyectos de Vue, Svelte o Vite puro, el plugin `tangerine-lang/vite` permite importar archivos `.tng` desde JavaScript.',
+    ],
+    code: 'export fn Contador(props) {
+  let (n, set_n) = use_state(props.inicio ?? 0)
+
+  h("div", { class: "contador" },
+    h("button", { on_click: || set_n(|x| x - 1) }, "−"),
+    h("span", nil, n),
+    h("button", { on_click: || set_n(|x| x + 1) }, "+"),
+  )
+}',
+    runnable: false,
+    tip: 'Usa `class` en vez de `className`. Los estilos van como mapa: `style: { font_size: "12px" }`.',
+  },
+  {
+    id: "palabras",
+    group: "Referencia",
+    title: "Palabras clave",
+    paragraphs: [
+      'Todas las palabras reservadas del lenguaje. No se pueden usar como nombres de variables ni funciones.',
+    ],
+    code: 'struct Order {
+  var items = []
+  init(customer) { self.customer = customer }
+  fn add(item) { self.items.push(item); self }
+}
+
+fn summary(order) {
+  match order.items.len() {
+    0 => "{order.customer} ordered nothing",
+    1 => "{order.customer} ordered {order.items[0]}",
+    n => "{order.customer} ordered {n} items",
+  }
+}
+
+println(summary(Order("Ana").add("lime").add("mandarin")))',
+    table: {
+      columns: ["Palabra", "Para qué sirve"],
+      rows: [
+        ['`let`, `var`', 'Valores fijos y variables que pueden cambiar.'],
+        ['`fn`, `return`', 'Declarar funciones y salir de ellas antes de tiempo.'],
+        ['`if`, `else`, `match`', 'Elegir qué código ejecutar.'],
+        ['`for`, `in`, `while`, `loop`', 'Repetir código.'],
+        ['`break`, `continue`', 'Salir de un bucle o saltar a la siguiente vuelta.'],
+        ['`class`, `struct`, `self`, `super`', 'Crear clases y trabajar con sus instancias.'],
+        ['`do`, `catch`, `throw`', 'Manejar errores.'],
+        ['`import`, `export`', 'Compartir código entre archivos.'],
+        ['`true`, `false`, `nil`', 'Los valores booleanos y la ausencia de valor.'],
+      ],
+    },
+  },
+  {
+    id: "incluidas",
+    group: "Referencia",
+    title: "Funciones incluidas",
+    paragraphs: [
+      'Estas funciones están disponibles en cualquier programa. Los números además tienen sus propios métodos, que se llaman con un punto.',
+    ],
+    code: 'println(min(4, 9, 2), max([3, 8]), PI.round(4))
+println(3.14159.round(2), 2.9.floor(), (-4).abs(), 81.sqrt())
+println(7.is_odd(), 15.clamp(0, 10), 4.times(|i| i * i))
+println(42.to_string() + "!", type_of(42.5.to_int()))
+
+println(to_json({ kg: 2, tags: ["citrus"] }))
+
+assert(1 + 1 == 2, "math is broken")',
+    table: {
+      columns: ["Función", "Qué hace"],
+      rows: [
+        ['`println(...)`, `print(...)`', 'Escriben valores, con o sin salto de línea.'],
+        ['`type_of(x)`', 'Nombre del tipo del valor.'],
+        ['`min(...)`, `max(...)`', 'Menor o mayor valor, de varios números o de una lista.'],
+        ['`random()`, `random_int(a, b)`', 'Número al azar entre 0 y 1, o entero entre `a` y `b`.'],
+        ['`assert(condición, mensaje)`', 'Lanza un error si la condición es falsa.'],
+        ['`to_json(x)`, `from_json(texto)`', 'Convierten valores a JSON y de vuelta.'],
+        ['`PI`', 'El número π.'],
+        ['`n.round(d)`, `n.floor()`, `n.ceil()`, `n.abs()`, `n.sqrt()`, `n.pow(e)`', 'Métodos matemáticos de los números.'],
+        ['`n.is_even()`, `n.is_odd()`, `n.clamp(a, b)`, `n.to_int()`, `n.times(f)`', 'Más métodos útiles de los números.'],
+        ['`x.to_string()`', 'Convierte cualquier valor en string.'],
+      ],
+    },
+  },
+  {
+    id: "navegador",
+    group: "Referencia",
+    title: "Tangerine en el navegador",
+    paragraphs: [
+      'Esta página está escrita en Tangerine. El HTML solo trae un elemento vacío, los estilos y el intérprete. El programa crea todo lo demás con unas funciones extra que conectan el lenguaje con el navegador.',
+      'Esas funciones solo existen en el programa de la página. En el playground no están disponibles, así tus pruebas no pueden cambiar la página.',
+      'Para usarlas en tu propia página, carga `tangerine.global.min.js` desde jsDelivr y escribe tu programa dentro de `<script type="text/tangerine">`. Se ejecuta solo al cargar la página.',
+    ],
+    code: 'let card = el("div", "card")
+append(card, el("h3", nil, "Hello"))
+on(card, "click", || toggle_class(card, "active", true))
+append(query("#app"), card)',
+    runnable: false,
+    table: {
+      columns: ["Función", "Qué hace"],
+      rows: [
+        ['`query(selector)`', 'Busca un elemento con un selector CSS.'],
+        ['`el(etiqueta, clase, texto)`', 'Crea un elemento nuevo.'],
+        ['`append(padre, hijo)`', 'Pone un elemento dentro de otro y lo devuelve.'],
+        ['`set_text(e, texto)`, `attr(e, nombre, valor)`', 'Cambia el texto o un atributo.'],
+        ['`toggle_class(e, clase, on)`, `set_visible(e, on)`', 'Pone o quita una clase, muestra u oculta.'],
+        ['`on(e, evento, f)`', 'Ejecuta `f` cuando pasa algo, como un clic. Si `f` recibe un parámetro, le llega un mapa con `type`, `key` y `value`.'],
+        ['`query_all(selector)`, `set_style(e, prop, valor)`', 'Busca todos los elementos que coinciden o cambia un estilo.'],
+        ['`after(ms, f)`, `save(clave, valor)`, `load(clave)`', 'Ejecuta algo más tarde, o guarda y lee datos en el navegador.'],
+        ['`run(código)`', 'Ejecuta otro programa de Tangerine y devuelve su salida. Así funciona el playground.'],
+      ],
+    },
+  },
+]
+
+export let samples = [
+  { file: "hello.tng", code: 'let name = "world"
+println("Hello, {name}!")
+println("2 + 3 * 4 = {2 + 3 * 4}")' },
+  { file: "fruit_stand.tng", code: 'struct Basket {
+  var items = []
+
+  fn add(fruit, kilos, price) {
+    self.items.push({ fruit, kilos, price })
+    self
+  }
+
+  fn total() -> Float {
+    self.items.fold(0, |sum, x| sum + x.kilos * x.price)
+  }
+}
+
+let basket = Basket()
+  .add("mandarin", 2, 3200)
+  .add("lime", 1, 2800)
+
+for item in basket.items {
+  println("{item.kilos} kg of {item.fruit}")
+}
+println("Total: ${basket.total()}")' },
+  { file: "grades.tng", code: 'let scores = [95, 72, 88, 41, 100]
+
+for s in scores {
+  let grade = match s {
+    90..=100 => "A",
+    80..90 => "B",
+    60..80 => "C",
+    _ => "F",
+  }
+  println("{s.to_string().pad_start(3)} -> {grade}")
+}
+
+let avg = scores.sum() / scores.len()
+println("Average: {avg.round(1)}")' },
+  { file: "inventory.tng", code: 'let stock = {
+  mandarin: 40,
+  lime: 12,
+  grapefruit: 0,
+}
+
+for (fruit, qty) in stock {
+  let status = if qty == 0 { "sold out" } else { "{qty} left" }
+  println("{fruit}: {status}")
+}' },
+  { file: "errors.tng", code: 'fn parse_age(text) -> Int {
+  let age = text.parse()
+  if age == nil {
+    throw "\'{text}\' is not a number"
+  }
+  age
+}
+
+for input in ["21", "twenty", "35"] {
+  do {
+    println("Age:", parse_age(input))
+  } catch e {
+    println("Error:", e.message)
+  }
+}' },
+  { file: "fizzbuzz.tng", code: 'for i in 1..=15 {
+  let out = match i {
+    n if n % 15 == 0 => "FizzBuzz",
+    n if n % 3 == 0 => "Fizz",
+    n if n % 5 == 0 => "Buzz",
+    n => n.to_string(),
+  }
+  println(out)
+}' },
+  { file: "counter.tng", code: 'fn make_counter() {
+  var count = 0
+  {
+    increment: || { count += 1 },
+    value: || count,
+  }
+}
+
+let c = make_counter()
+3.times(|_| c.increment())
+println("count:", c.value())' },
+  { file: "fibonacci.tng", code: 'let memo = {}
+
+fn fib(n: Int) -> Int {
+  if n < 2 { return n }
+  if memo.has(n) { return memo[n] }
+  let result = fib(n - 1) + fib(n - 2)
+  memo[n] = result
+  result
+}
+
+for n in [10, 30, 70] {
+  println("fib({n}) = {fib(n)}")
+}' },
+]
+
+export let features = [
+  { id: "match", icon: "match", title: "Pattern matching", text: "Compara un valor con rangos, opciones y condiciones en un solo bloque claro." },
+  { id: "closures", icon: "|x|", title: "Closures", text: "Funciones de una línea, al estilo de Rust, que recuerdan su entorno." },
+  { id: "clases", icon: "class", title: "Clases y herencia", text: "Campos con valor inicial, init, self y super. Sin new, como en Swift." },
+  { id: "react", icon: "h()", title: "Componentes de React", text: "Escribe componentes con hooks en Tangerine e impórtalos desde React con Vite." },
+  { id: "modulos", icon: "import", title: "Módulos", text: "Divide tu programa en archivos con import y export, y reutilízalos donde quieras." },
+  { id: "mapas", icon: "?.", title: "Nil seguro", text: "Encadena lecturas con ?. y da valores por defecto con ??." },
+  { id: "listas", icon: "[ ]", title: "Listas expresivas", text: "Más de 30 métodos: map, filter, fold, zip, enumerate, sorted_by_key." },
+  { id: "errores", icon: "¿?", title: "Errores que ayudan", text: "En español, con línea, columna y rastro de llamadas. Si te equivocas de nombre, te sugiere el correcto." },
+]

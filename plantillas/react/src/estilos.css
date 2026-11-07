@@ -1,0 +1,21 @@
+:root {
+  --fondo: #fffaf5; --tinta: #1e2722; --tenue: #5b665f; --linea: #f0e2d4; --mandarina: #f7811e; --superficie: #fff;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --fondo: #181c1a; --tinta: #f3eee8; --tenue: #a9b2ac; --linea: #2c322f; --superficie: #202523; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 16px; background: var(--fondo); color: var(--tinta); font: 16px/1.5 system-ui, sans-serif; }
+.tarjeta { width: min(440px, 100%); padding: 32px; border: 1px solid var(--linea); border-radius: 16px; background: var(--superficie); text-align: center; }
+h1 { margin: 0 0 8px; font-size: 28px; }
+.lema { margin: 0; color: var(--tenue); }
+.numero { margin: 0 8px; min-width: 64px; display: inline-block; font-size: 56px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.botones { display: flex; gap: 12px; justify-content: center; }
+.boton { min-width: 64px; padding: 10px 18px; border: 1px solid var(--linea); border-radius: 10px; background: transparent; color: inherit; font: inherit; font-size: 20px; cursor: pointer; }
+.boton:hover { border-color: var(--mandarina); }
+.boton:focus-visible { outline: 2px solid var(--mandarina); outline-offset: 2px; }
+.primario { background: var(--mandarina); border-color: var(--mandarina); color: #fff; }
+input { width: 100%; margin-top: 20px; padding: 10px 12px; border: 1px solid var(--linea); border-radius: 10px; background: transparent; color: inherit; font: inherit; }
+input:focus-visible { outline: 2px solid var(--mandarina); outline-offset: 1px; }
+.botones { margin-top: 24px; align-items: center; }

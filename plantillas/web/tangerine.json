@@ -1,0 +1,8 @@
+{
+  "entry": "src/main.tng",
+  "out": "dist/index.html",
+  "title": "{{nombre}}",
+  "lang": "es",
+  "styles": ["src/estilos.css"],
+  "scripts": []
+}

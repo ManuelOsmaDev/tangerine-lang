@@ -1,0 +1,69 @@
+// ════════════════════════════════════════════════
+//  Tangerine: sitio oficial
+//  Este programa construye toda la página: inicio,
+//  guía y playground. Cada vista vive en su módulo.
+// ════════════════════════════════════════════════
+
+import { make, link, logo } from "./ui.tng"
+import { build_home } from "./inicio.tng"
+import { build_guide, mark_topic } from "./guia.tng"
+import { build_playground } from "./playground.tng"
+
+let app = query("#app")
+
+// ── Header ──────────────────────────────────────
+
+let header = make(app, "header", "cabecera", nil)
+let bar = make(header, "div", "contenedor barra", nil)
+logo(link(bar, "logo-enlace", nil, "inicio"))
+let nav = make(bar, "nav", "nav", nil)
+attr(nav, "aria-label", "Principal")
+let nav_links = {}
+for (key, label) in { inicio: "Inicio", guia: "Guía", playground: "Playground" } {
+  nav_links[key] = link(nav, "nav-enlace", label, key)
+}
+make(bar, "span", "version", "v" + version())
+
+let views = {
+  inicio: make(app, "main", "vista", nil),
+  guia: make(app, "main", "vista", nil),
+  playground: make(app, "main", "vista", nil),
+}
+
+build_home(views.inicio)
+build_guide(views.guia)
+build_playground(views.playground)
+
+// ── Footer ──────────────────────────────────────
+
+let footer = make(app, "footer", "pie", nil)
+let footer_inner = make(footer, "div", "contenedor pie-in", nil)
+logo(footer_inner)
+make(footer_inner, "p", nil, "Tangerine {version()}. Un lenguaje pequeño para aprender cómo funcionan los intérpretes.")
+let footer_links = make(footer_inner, "nav", "pie-enlaces", nil)
+attr(footer_links, "aria-label", "Pie de página")
+link(footer_links, nil, "Guía", "guia")
+link(footer_links, nil, "Playground", "playground")
+
+// ── Routing ─────────────────────────────────────
+
+fn navigate(dest) {
+  let parts = dest.split("-")
+  let view = if views.has(parts[0]) { parts[0] } else { "inicio" }
+  for (key, v) in views {
+    set_visible(v, key == view)
+  }
+  for (key, a) in nav_links {
+    toggle_class(a, "activo", key == view)
+    attr(a, "aria-current", if key == view { "page" } else { nil })
+  }
+  if view == "guia" && parts.len() > 1 {
+    let id = parts.skip(1).join("-")
+    mark_topic(id)
+    scroll_to(query("#tema-" + id))
+  } else {
+    scroll_top()
+  }
+}
+
+on_route(navigate)

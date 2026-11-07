@@ -1,0 +1,77 @@
+// ════════════════════════════════════════════════
+//  Piezas de interfaz que comparten todas las vistas
+// ════════════════════════════════════════════════
+
+// El playground registra aquí cómo abrir código en él (evita un import circular)
+var playground_opener = nil
+
+export fn set_playground_opener(f) {
+  playground_opener = f
+}
+
+fn open_in_playground(code) {
+  if playground_opener != nil {
+    playground_opener(code)
+  }
+}
+
+export fn make(parent, tag, cls, text) {
+  append(parent, el(tag, cls, text))
+}
+
+export fn link(parent, cls, text, to) {
+  let a = make(parent, "a", cls, text)
+  attr(a, "href", "#" + to)
+  a
+}
+
+// Writes text where anything between `backticks` is shown as code
+export fn rich_text(parent, text) {
+  for (i, piece) in text.split("`").enumerate() {
+    if i.is_odd() {
+      make(parent, "code", nil, piece)
+    } else {
+      add_text(parent, piece)
+    }
+  }
+  parent
+}
+
+export fn logo(parent) {
+  let mark = make(parent, "span", "marca", nil)
+  attr(make(mark, "span", "fruta-logo", nil), "aria-hidden", "true")
+  make(mark, "span", nil, "Tangerine")
+  mark
+}
+
+export fn paint_output(parent, result, cls) {
+  let panel = make(parent, "div", cls, nil)
+  make(panel, "span", "salida-etiqueta", "Salida")
+  for line in result.output {
+    make(panel, "div", "linea", line)
+  }
+  if result.error != nil {
+    make(panel, "div", "linea error", result.error)
+  }
+  panel
+}
+
+// A code sample with its real output
+export class CodeBlock {
+  init(parent, code, opts) {
+    let options = opts ?? {}
+    let runnable = options.runnable != false
+    self.code = code
+    self.frame = make(parent, "figure", "bloque", nil)
+    let head = make(self.frame, "figcaption", "bloque-cab", nil)
+    make(head, "span", nil, options.file ?? "example.tng")
+    if runnable {
+      let button = make(head, "button", "boton-mini", "Probar en el playground")
+      on(button, "click", || open_in_playground(code))
+    }
+    highlight(make(self.frame, "pre", nil, nil), code)
+    if runnable {
+      paint_output(self.frame, run(code), "bloque-salida")
+    }
+  }
+}
