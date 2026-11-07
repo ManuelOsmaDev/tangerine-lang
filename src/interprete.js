@@ -303,6 +303,147 @@ export function createInterpreter(host) {
     VIEW.push(show(v));
   }
 
+  function iterable(it, L) {
+    it = norm(it);
+    if (typeof it === "string") return Array.from(it);
+    if (isMap(it)) { const m = it; return Object.keys(m).map((k) => [k, m[k]]); }
+    if (it instanceof Instance) { const f = it.fields; return Object.keys(f).map((k) => [k, f[k]]); }
+    if (!Array.isArray(it)) throw new TngError(`No se puede recorrer ${typeOf(it)} con for`, L);
+    return it;
+  }
+
+  // ── async y await ──
+  // await va al inicio de una línea: let x = await f(), x = await f(), await f() o return await f().
+  // También dentro de if, while, loop, for y do/catch.
+  const AWAIT_POS = "await va al inicio de una línea dentro de una async fn: let x = await ..., x = await ..., await ... o return await ...";
+  const conAwait = new WeakMap();
+  function hasAwait(n) {
+    if (!n || typeof n !== "object") return false;
+    if (conAwait.has(n)) return conAwait.get(n);
+    let r = false;
+    if (Array.isArray(n)) r = n.some(hasAwait);
+    else if (n.type === "await") r = true;
+    else if (n.type !== "function") {
+      for (const k in n) if (k !== "line" && n[k] && typeof n[k] === "object" && hasAwait(n[k])) { r = true; break; }
+    }
+    conAwait.set(n, r);
+    return r;
+  }
+
+  // Un error de JavaScript (por ejemplo de fetch) se vuelve un error de Tangerine que do/catch puede atrapar.
+  function comoError(x, L) {
+    if (x instanceof Thrown || x instanceof TngError || x instanceof Return || x === BREAK || x === CONTINUE || x instanceof StepLimit) return x;
+    if (x instanceof Error) return new Thrown(x.message, L);
+    return new Thrown(fromJS(x), L);
+  }
+
+  async function awaitExpr(e, env) {
+    if (e.type === "await") {
+      const p = evaluate(e.value, env);
+      try { return norm(await p); }
+      catch (x) { throw comoError(x, e.line); }
+    }
+    if (hasAwait(e)) throw new TngError(AWAIT_POS, e.line);
+    return evaluate(e, env);
+  }
+
+  async function runBlockAsync(stmts, env) {
+    let last = null;
+    for (const s of stmts) last = hasAwait(s) ? await execAsync(s, env) : exec(s, env);
+    return last;
+  }
+
+  async function loopAsync(body, env) {
+    tick();
+    try { await runBlockAsync(body, env); }
+    catch (x) { if (x === BREAK) return false; if (x === CONTINUE) return true; throw x; }
+    return true;
+  }
+
+  async function execAsync(s, env) {
+    switch (s.type) {
+      case "exp": {
+        const e = s.exp;
+        if (e.type === "if") {
+          const c = await awaitExpr(e.cond, env);
+          if (truthy(c)) return runBlockAsync(e.then, new Env(env));
+          return e.otherwise ? runBlockAsync(e.otherwise, new Env(env)) : null;
+        }
+        return awaitExpr(e, env);
+      }
+      case "decl":
+        bindTarget(env, s.target, s.value ? await awaitExpr(s.value, env) : null, s.constant, s.line);
+        return null;
+      case "assign":
+        assign(s, env, await awaitExpr(s.value, env));
+        return null;
+      case "return": throw new Return(s.value ? await awaitExpr(s.value, env) : null);
+      case "throw": throw new Thrown(await awaitExpr(s.value, env), s.line);
+      case "while":
+        while (truthy(await awaitExpr(s.cond, env))) { if (!(await loopAsync(s.body, new Env(env)))) break; }
+        return null;
+      case "loop":
+        for (;;) { if (!(await loopAsync(s.body, new Env(env)))) break; }
+        return null;
+      case "for": {
+        const it = iterable(await awaitExpr(s.iter, env), s.line);
+        for (const x of it) {
+          const local = new Env(env);
+          bindTarget(local, s.target, x, false, s.line);
+          if (!(await loopAsync(s.body, local))) break;
+        }
+        return null;
+      }
+      case "try":
+        try { return await runBlockAsync(s.body, new Env(env)); }
+        catch (x0) {
+          const x = comoError(x0, s.line);
+          if (!catchable(x)) throw x;
+          const local = new Env(env);
+          local.define(s.name, errorValue(x));
+          return runBlockAsync(s.handler, local);
+        }
+    }
+    throw new TngError(AWAIT_POS, s.line);
+  }
+
+  async function callAsync(f, args, L) {
+    const d = f.decl, local = new Env(f.env);
+    const ps = d.params, defs = d.defaults;
+    for (let i = 0; i < ps.length; i++) {
+      let v = args[i];
+      if (v === undefined && defs && defs[i]) v = evaluate(defs[i], local);
+      local.define(ps[i], v === undefined ? null : v);
+    }
+    try {
+      if (d.isExpr) return await awaitExpr(d.body, local);
+      return await runBlockAsync(d.body, local);
+    } catch (x) {
+      if (x instanceof Return) return x.value;
+      throw comoError(x, L);
+    } finally {
+      flush();
+    }
+  }
+
+  // fetch con opciones de Tangerine: { method, headers, body }. Un body que no es texto se envía como JSON.
+  function pedir(url, op) {
+    if (typeof fetch !== "function") throw new TngError("fetch no está disponible aquí. Usa Node 18 o más reciente, o un navegador");
+    const o = op ? toJS(op) : {};
+    const init = { method: String(o.method || "GET").toUpperCase(), headers: { ...(o.headers || {}) } };
+    if (o.body !== undefined && o.body !== null) {
+      if (typeof o.body === "string") init.body = o.body;
+      else {
+        init.body = JSON.stringify(o.body);
+        if (!Object.keys(init.headers).some((k) => k.toLowerCase() === "content-type")) init.headers["Content-Type"] = "application/json";
+      }
+    }
+    return fetch(String(url), init).then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status} al pedir ${url}`);
+      return r;
+    });
+  }
+
   function runBlock(stmts, env) {
     if (stmts.view) {
       for (const s of stmts) {
@@ -372,11 +513,7 @@ export function createInterpreter(host) {
         for (;;) { if (!loopBody(s.body, new Env(env))) break; }
         return null;
       case "for": {
-        let it = norm(evaluate(s.iter, env));
-        if (typeof it === "string") it = Array.from(it);
-        else if (isMap(it)) { const m = it; it = Object.keys(m).map((k) => [k, m[k]]); }
-        else if (it instanceof Instance) { const f = it.fields; it = Object.keys(f).map((k) => [k, f[k]]); }
-        else if (!Array.isArray(it)) throw new TngError(`No se puede recorrer ${typeOf(it)} con for`, s.line);
+        const it = iterable(evaluate(s.iter, env), s.line);
         for (const x of it) {
           const local = new Env(env);
           bindTarget(local, s.target, x, false, s.line);
@@ -407,9 +544,9 @@ export function createInterpreter(host) {
     throw new TngError(`Instrucción desconocida ${s.type}`, s.line);
   }
 
-  function assign(s, env) {
+  function assign(s, env, ...ya) {
     const t = s.target, L = s.line;
-    const value = evaluate(s.value, env);
+    const value = ya.length ? ya[0] : evaluate(s.value, env);
     const combine = (cur) => (s.op === "=" ? value : operate(s.op[0], cur, value, L));
     if (t.type === "var") {
       env.set(t.name, s.op === "=" ? value : combine(env.get(t.name, L)), L);
@@ -451,6 +588,7 @@ export function createInterpreter(host) {
       case "list": return e.items.map((x) => evaluate(x, env));
       case "map": { const o = Object.create(null); for (const [k, v] of e.pairs) o[k] = evaluate(v, env); return o; }
       case "function": return new Fn(e, env);
+      case "await": throw new TngError(AWAIT_POS, e.line);
       case "bindref": {
         const n = e.name;
         if (!env.has(n)) env.get(n, e.line);
@@ -563,6 +701,11 @@ export function createInterpreter(host) {
     }
     if (f instanceof Fn) {
       tick();
+      if (f.decl.isAsync) {
+        const p = callAsync(f, args, L);
+        p.tngAsync = true;
+        return p;
+      }
       const d = f.decl, local = new Env(f.env);
       const ps = d.params, defs = d.defaults;
       const callerFile = CURFILE;
@@ -693,6 +836,10 @@ export function createInterpreter(host) {
   const BUILTINS = {
     log: (...a) => { OUT(BUFFER + a.map((x) => show(x)).join(" ")); BUFFER = ""; },
     write: (...a) => { BUFFER += a.map((x) => show(x)).join(" "); },
+    // Se usan con await dentro de una async fn.
+    sleep: (ms) => new Promise((ok) => setTimeout(() => ok(null), Number(ms) || 0)),
+    fetch_json: (url, op) => pedir(url, op).then((r) => r.text()).then((t) => (t ? fromJS(JSON.parse(t)) : null)),
+    fetch_text: (url, op) => pedir(url, op).then((r) => r.text()),
     type_of: (x) => typeOf(x),
     assert: (cond, msg) => {
       if (!truthy(cond)) throw new Thrown(makeMap({ message: msg == null ? "La afirmación falló" : show(msg) }));
@@ -730,7 +877,11 @@ export function createInterpreter(host) {
     /** Llama a una función de Tangerine desde JavaScript (eventos, callbacks). */
     invoke(f, args) {
       reset();
-      try { return call(f, args || []); }
+      try {
+        const r = call(f, args || []);
+        if (r && r.tngAsync) r.catch((x) => { if (!(x instanceof Return)) host.onError(message(comoError(x))); });
+        return r;
+      }
       catch (x) {
         if (x instanceof Return) return x.value;
         host.onError(message(x));

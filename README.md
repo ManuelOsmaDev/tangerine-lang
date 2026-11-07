@@ -199,6 +199,47 @@ React 19 conecta `oncambio` solo. En React 18, escucha el evento con un `ref` y 
 
 Los `@Input` reciben atributos de texto (los números y `true`/`false` se convierten solos según el valor inicial) y también propiedades con listas u objetos. Los componentes se dibujan dentro de su etiqueta, sin Shadow DOM, así que los estilos de tu app les llegan.
 
+## Datos de una API: async, await y fetch
+
+Una `async fn` puede esperar con `await` sin congelar la página. `fetch_json` pide datos a una API y los devuelve como mapas y listas.
+
+```swift
+struct Usuarios {
+  @State var usuarios = []
+  @State var error = nil
+
+  async fn on_mount() {
+    do {
+      usuarios = await fetch_json("https://jsonplaceholder.typicode.com/users")
+    } catch e {
+      error = e.message
+    }
+  }
+
+  view {
+    if error != nil { p(.error) { error } }
+    ul {
+      for u in usuarios { li({ key: u.id }) { u.name } }
+    }
+  }
+}
+
+mount("#app", Usuarios)
+```
+
+| Qué | Para qué |
+| --- | --- |
+| `async fn cargar() { }` | Una función que puede esperar. Al llamarla devuelve una promesa. También `async \|x\| { }` y métodos `async fn`. |
+| `let x = await f()` | Espera el resultado. `await` va al inicio de la línea: `let x = await ...`, `x = await ...`, `await ...` o `return await ...`, también dentro de `if`, `for`, `while` y `do/catch`. |
+| `fetch_json(url, opciones?)` | Pide JSON. Opciones: `{ method: "post", headers: { ... }, body: { ... } }`; un `body` que no es texto se envía como JSON. |
+| `fetch_text(url, opciones?)` | Igual, pero devuelve el texto. |
+| `sleep(ms)` | Espera unos milisegundos: `await sleep(500)`. |
+| `on_mount()` | Se ejecuta cuando el componente aparece en la página. Puede ser `async`. |
+| `on_destroy()` | Se ejecuta cuando el componente se quita: limpia timers o suscripciones. |
+| `li({ key: u.id })` | En listas que cambian de orden, `key` hace que cada fila conserve su elemento (y lo que tenga escrito). |
+
+Si la API responde con un error (404, 500...), `fetch_json` lanza `HTTP 404 al pedir ...` y lo atrapas con `do/catch`.
+
 ## Estado reactivo
 
 Fuera de un componente también puedes guardar datos en un `state`. Cuando el estado cambia, todo lo que lo muestra se actualiza solo: no hay que borrar ni volver a pintar nada a mano.

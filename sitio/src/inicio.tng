@@ -15,9 +15,9 @@ export fn build_home(home) {
   let hero_grid = make(hero, "div", "contenedor heroe-rejilla", nil)
   let hero_text = make(hero_grid, "div", "heroe-texto", nil)
 
-  let notice = link(hero_text, "aviso", nil, "guia-frameworks")
+  let notice = link(hero_text, "aviso", nil, "guia-async")
   make(notice, "span", "aviso-punto", nil)
-  make(notice, "span", nil, "Nuevo en 4.0: componentes que funcionan en Angular, React y Vue")
+  make(notice, "span", nil, "Nuevo en 5.1: async, fetch_json y on_mount para cargar datos de una API")
 
   make(hero_text, "h1", nil, "La elegancia de Swift y Angular, en un micro framework que cabe en una tarde.")
   make(hero_text, "p", "heroe-lema", "Componentes con @Component, @State, @Input y @Output, y la vista escrita como en SwiftUI. Cada componente es un Web Component que puedes sumar a tu app de Angular, React o Vue. Sin dependencias.")

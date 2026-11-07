@@ -153,6 +153,7 @@ export function typeOf(v) {
   if (isState(v)) return "State";
   if (v instanceof VNode) return "View";
   if (isMap(v)) return "Map";
+  if (v instanceof Promise) return "Promise";
   return "Element";
 }
 
@@ -161,6 +162,7 @@ export function show(v, nested, depth) {
   depth = depth || 0;
   if (isState(v)) return show(v[STATE].read(), nested, depth);
   if (v instanceof VNode) return v.tag ? `<${v.tag}>` : "<view>";
+  if (v instanceof Promise) return "<promise>";
   if (isBinding(v)) return show(v.get(), nested, depth);
   v = norm(v);
   if (v === null) return "nil";

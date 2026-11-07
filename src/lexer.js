@@ -4,7 +4,7 @@ import { TngError } from "./errores.js";
 export const KEYWORDS = new Set([
   "let", "var", "fn", "return", "if", "else", "while", "loop", "for", "in", "break", "continue",
   "match", "class", "struct", "self", "super", "do", "catch", "throw", "true", "false", "nil",
-  "import", "export",
+  "import", "export", "async", "await",
 ]);
 
 const OPS3 = new Set(["..="]);

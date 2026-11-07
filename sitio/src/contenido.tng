@@ -486,6 +486,49 @@ log(render_html(c))',
     },
   },
   {
+    id: "async",
+    group: "Componentes",
+    title: "Datos de una API",
+    paragraphs: [
+      'Una `async fn` puede esperar con `await` sin congelar la página. `fetch_json` pide datos a una API y los devuelve como mapas y listas; `fetch_text` devuelve el texto y `sleep(ms)` espera unos milisegundos.',
+      '`await` va al inicio de la línea: `let x = await ...`, `x = await ...`, `await ...` o `return await ...`. Puede estar dentro de `if`, `for`, `while` y `do/catch`. Si la API responde con un error, `fetch_json` lo lanza y lo atrapas con `do/catch`.',
+      'En un componente, `on_mount()` se ejecuta cuando aparece en la página y `on_destroy()` cuando se quita. Es el lugar para cargar datos. En listas que cambian de orden, `{ key: id }` hace que cada fila conserve su elemento.',
+    ],
+    code: 'struct Usuarios {
+  @State var usuarios = []
+  @State var error = nil
+
+  async fn on_mount() {
+    do {
+      usuarios = await fetch_json("https://jsonplaceholder.typicode.com/users")
+    } catch e {
+      error = e.message
+    }
+  }
+
+  view {
+    if error != nil { p(.error) { error } }
+    ul {
+      for u in usuarios { li({ key: u.id }) { u.name } }
+    }
+  }
+}
+
+mount("#app", Usuarios)',
+    runnable: false,
+    table: {
+      columns: ["Qué", "Para qué"],
+      rows: [
+        ['`async fn f() { }`', 'Una función que puede esperar. También métodos y closures: `async |x| { }`.'],
+        ['`let x = await f()`', 'Espera el resultado de una promesa.'],
+        ['`fetch_json(url, { method, headers, body })`', 'Pide JSON a una API.'],
+        ['`fetch_text(url)`, `sleep(ms)`', 'Pide texto, o espera.'],
+        ['`on_mount()`, `on_destroy()`', 'Al aparecer y al quitarse un componente.'],
+        ['`li({ key: id })`', 'Conserva cada fila al reordenar una lista.'],
+      ],
+    },
+  },
+  {
     id: "reactivo",
     group: "Componentes",
     title: "Estado reactivo",
@@ -669,6 +712,7 @@ log(summary(Order("Ana").add("lime").add("mandarin")))',
         ['`break`, `continue`', 'Salir de un bucle o saltar a la siguiente vuelta.'],
         ['`class`, `struct`, `self`, `super`', 'Crear clases y trabajar con sus instancias.'],
         ['`do`, `catch`, `throw`', 'Manejar errores.'],
+        ['`async`, `await`', 'Funciones que esperan, por ejemplo a una API.'],
         ['`import`, `export`', 'Compartir código entre archivos.'],
         ['`true`, `false`, `nil`', 'Los valores booleanos y la ausencia de valor.'],
         ['`@Component`, `@State`, `@Input`, `@Output`, `view`', 'Decoradores y vista de los componentes. `view` solo es especial dentro de un struct.'],
@@ -705,6 +749,7 @@ assert(1 + 1 == 2, "math is broken")',
         ['`x.to_string()`', 'Convierte cualquier valor en string.'],
         ['`state(v)`, `computed(f)`, `effect(f)`', 'Estado reactivo: ver la sección Estado reactivo.'],
         ['`render_html(componente)`', 'El HTML que dibuja un componente, como texto.'],
+        ['`fetch_json(url)`, `fetch_text(url)`, `sleep(ms)`', 'Pedir datos a una API o esperar, con `await`.'],
       ],
     },
   },

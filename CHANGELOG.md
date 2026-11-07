@@ -1,5 +1,14 @@
 # Cambios
 
+## 5.1.0
+
+- **`async fn` y `await`**: funciones, métodos y closures que esperan sin congelar la página. `await` va al inicio de la línea (`let x = await f()`), también dentro de `if`, `for`, `while` y `do/catch`.
+- **`fetch_json` y `fetch_text`** para pedir datos a una API, con `method`, `headers` y `body`. Un error HTTP se atrapa con `do/catch`.
+- **`sleep(ms)`** para esperar.
+- **Ciclo de vida**: `on_mount()` al aparecer un componente y `on_destroy()` al quitarse. Pueden ser `async`.
+- **Listas con `key`**: `li({ key: u.id })` conserva cada fila al reordenar, sin perder lo escrito en sus inputs.
+- `async` y `await` pasan a ser palabras reservadas.
+
 ## 5.0.0
 
 - **`log` y `write` reemplazan a `println` y `print`.** `log(...)` escribe y termina la línea; `write(...)` escribe sin terminarla. Si usas el nombre viejo, el error te dice cuál usar: `No existe 'println' en este ámbito. ¿Quisiste decir 'log'?`

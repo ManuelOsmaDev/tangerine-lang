@@ -361,6 +361,21 @@ Los literales negativos necesitan paréntesis para llamar métodos: `(-4).abs()`
 
 `el`, `set_text`, `attr`, `toggle_class`, `set_style`, `set_visible` y `set_value` aceptan un `state` o `computed` en lugar del valor y se actualizan solos.
 
+### 5.5 async, await y fetch
+
+```swift
+async fn cargar(id) {                       // también: async fn en structs, async |x| { }
+  let u = await fetch_json("/api/u/{id}")  // await SOLO al inicio: let x = await / x = await / await / return await
+  if u.activo { await sleep(100) }          // dentro de if/for/while/loop/do-catch sí
+  u                                          // último valor = resultado de la promesa
+}
+```
+
+- `fetch_json(url, { method, headers, body })` / `fetch_text(url, ...)`: `body` no-string se envía como JSON. HTTP >= 400 lanza `"HTTP 404 al pedir url"`; se atrapa con `do { } catch e { e.message }`.
+- `sleep(ms)`. Llamar una `async fn` devuelve una promesa (`type_of` da `"Promise"`).
+- `log(await x)` u otro `await` dentro de una expresión da error: sácalo a su propia línea.
+- Componentes: `fn on_mount()` y `fn on_destroy()` (pueden ser async). En listas que se reordenan usa `{ key: id }`.
+
 ### 5.4 Componentes (siempre disponibles)
 
 ```swift

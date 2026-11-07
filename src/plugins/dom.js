@@ -40,6 +40,7 @@ export function dom() {
         const custom = v.tag.includes("-");
         for (const k of Object.keys(prev)) if (!(k in v.attrs)) { el.removeAttribute(k); if (custom) el[camel(k)] = undefined; }
         for (const k of Object.keys(v.attrs)) {
+          if (k === "key") continue;
           let x = norm(v.attrs[k]);
           if (isState(x)) x = x.get();
           if (custom && x !== null && typeof x !== "string") { el[camel(k)] = x; continue; }
@@ -96,6 +97,7 @@ export function dom() {
         if (typeof v === "string") return document.createTextNode(v);
         const el = document.createElement(v.tag);
         if (v.tag === "button" && !("type" in v.attrs)) el.type = "button";
+        el.__tngKey = keyOf(v);
         update(el, v);
         if (!esComponente(v.tag)) for (const c of v.children) el.appendChild(crear(c));
         return el;
@@ -104,9 +106,41 @@ export function dom() {
       const mismoTipo = (d, v) =>
         typeof v === "string" ? d.nodeType === 3 : d.nodeType === 1 && d.tagName.toLowerCase() === v.tag.toLowerCase();
 
+      // Con { key: id }, cada elemento de una lista conserva su nodo aunque la lista se reordene.
+      const keyOf = (v) => (typeof v === "string" || v.attrs.key === undefined || v.attrs.key === null ? null : show(v.attrs.key));
+
+      function patchKeyed(parent, vs) {
+        const porKey = new Map();
+        for (const d of Array.from(parent.childNodes)) if (d.__tngKey != null) porKey.set(d.__tngKey, d);
+        let i = 0;
+        for (const v of vs) {
+          const k = keyOf(v);
+          let d;
+          if (k !== null) {
+            d = porKey.get(k);
+            porKey.delete(k);
+            if (d && !mismoTipo(d, v)) d = null;
+          } else {
+            d = parent.childNodes[i];
+            if (d && (d.__tngKey != null || !mismoTipo(d, v))) d = null;
+          }
+          if (!d) d = crear(v);
+          else if (typeof v === "string") { if (d.data !== v) d.data = v; }
+          else {
+            update(d, v);
+            if (!esComponente(v.tag)) patch(d, v.children);
+          }
+          const actual = parent.childNodes[i];
+          if (actual !== d) parent.insertBefore(d, actual || null);
+          i++;
+        }
+        while (parent.childNodes.length > vs.length) parent.lastChild.remove();
+      }
+
       // Cambia el DOM existente para que coincida con el view, sin rehacer lo que no cambió
       // (así un input no pierde el foco ni lo que tiene escrito).
       function patch(parent, vs) {
+        if (vs.some((v) => keyOf(v) !== null)) return patchKeyed(parent, vs);
         let i = 0;
         for (const v of vs) {
           const d = parent.childNodes[i];
@@ -128,6 +162,12 @@ export function dom() {
           const vn = comps().renderView(inst);
           patch(target, vn instanceof VNode ? (vn.tag === null ? vn.children : [vn]) : []);
         });
+      }
+
+      // on_mount() al aparecer en la página y on_destroy() al quitarse. Pueden ser async.
+      function ciclo(inst, nombre) {
+        const m = inst instanceof Instance && inst.cls.findMethod(nombre);
+        if (m) invoke(m.bind(inst));
       }
 
       const coerce = (texto, inicial) => {
@@ -174,10 +214,15 @@ export function dom() {
             if (!this._fx) {
               const self = this;
               invoke(() => { self._fx = renderInto(self, self._tng); });
+              if (this._fx) ciclo(this._tng, "on_mount");
             }
           }
           disconnectedCallback() {
-            if (this._fx) { tng.reactive.dispose(this._fx); this._fx = null; }
+            if (this._fx) {
+              tng.reactive.dispose(this._fx);
+              this._fx = null;
+              ciclo(this._tng, "on_destroy");
+            }
           }
           attributeChangedCallback(attr, _old, v) {
             const n = meta.inputs.find((x) => kebab(x) === attr);
@@ -214,6 +259,7 @@ export function dom() {
           const inst = what instanceof Class ? tng._rt.call(what, []) : what;
           if (!(inst instanceof Instance)) throw new Error("mount necesita un struct con view { }, por ejemplo mount(\"#app\", App)");
           renderInto(el, inst);
+          ciclo(inst, "on_mount");
           return inst;
         },
         query: (sel) => document.querySelector(sel),

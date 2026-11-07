@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { act } from "react";
@@ -175,5 +175,67 @@ mount("#app", Pagina)`);
     expect(app.querySelector("h2").textContent).toBe("Pendientes (2)");
     expect([...app.querySelectorAll("li")].map((x) => x.textContent)).toEqual(["leer", "correr"]);
     expect(app.querySelector("input").value).toBe("");
+  });
+});
+
+describe("ciclo de vida y listas con key", () => {
+  it("on_mount puede cargar datos con await y on_destroy limpia", async () => {
+    const tag = `t-vida-${++n}`;
+    vi.stubGlobal("fetch", () => Promise.resolve({ ok: true, status: 200, text: () => Promise.resolve('[{"id":1,"nombre":"Ana"},{"id":2,"nombre":"Luis"}]') }));
+    nueva(`
+
+@Component("${tag}")
+struct Usuarios {
+  @State var usuarios = []
+  @State var cargando = true
+  async fn on_mount() {
+    usuarios = await fetch_json("/api/usuarios")
+    cargando = false
+  }
+  fn on_destroy() { save("destruido", 1) }
+  view {
+    if cargando { p { "Cargando..." } }
+    ul { for u in usuarios { li({ key: u.id }) { u.nombre } } }
+  }
+}`);
+    document.body.insertAdjacentHTML("beforeend", `<${tag}></${tag}>`);
+    const el = document.querySelector(tag);
+    expect(el.textContent).toContain("Cargando...");
+    await new Promise((r) => setTimeout(r, 10));
+    expect([...el.querySelectorAll("li")].map((x) => x.textContent)).toEqual(["Ana", "Luis"]);
+    expect(el.querySelector("p")).toBeNull();
+    el.remove();
+    expect(localStorage.getItem("destruido")).toBe("1");
+    vi.unstubAllGlobals();
+  });
+
+  it("con key, reordenar una lista conserva cada fila y lo escrito en ella", () => {
+    const { app } = nueva(`
+struct Lista {
+  @State var items = [{ id: 1, n: "a" }, { id: 2, n: "b" }, { id: 3, n: "c" }]
+  view {
+    ul {
+      for it in items {
+        li({ key: it.id }) {
+          span { it.n }
+          input({ class: "nota" })
+        }
+      }
+    }
+    button(.invertir) { items = items.reversed() }
+    button(.quitar) { items = items.filter(|x| x.id != 2) }
+  }
+}
+mount("#app", Lista)`);
+    const filas = [...app.querySelectorAll("li")];
+    filas[0].querySelector("input").value = "nota de a";
+    clic(app.querySelector(".invertir"));
+    const despues = [...app.querySelectorAll("li")];
+    expect(despues.map((x) => x.querySelector("span").textContent)).toEqual(["c", "b", "a"]);
+    expect(despues[2]).toBe(filas[0]);
+    expect(despues[2].querySelector("input").value).toBe("nota de a");
+    expect(despues[0].hasAttribute("key")).toBe(false);
+    clic(app.querySelector(".quitar"));
+    expect([...app.querySelectorAll("li span")].map((x) => x.textContent)).toEqual(["c", "a"]);
   });
 });

@@ -199,6 +199,15 @@ export function parser(tokens, opciones) {
         endStmt();
         return { type: "decl", constant: t.type === "let", target, value, line: L };
       }
+      case "async":
+        if (peek(1).type === "fn" && peek(2).type === "id") {
+          pos += 2;
+          const name = expect("id").value;
+          const f = fnRest(name, L);
+          f.isAsync = true;
+          return { type: "decl", constant: true, target: name, value: f, line: L };
+        }
+        break;
       case "fn":
         if (peek(1).type === "id") {
           pos++;
@@ -239,9 +248,12 @@ export function parser(tokens, opciones) {
             methods.push({ type: "function", name: "view", params: [], defaults: null, body, isView: true, line: v.line, file });
             continue;
           }
+          const asyncMethod = accept("async");
           accept("fn");
           const m = expect("id", "el nombre de un método");
-          methods.push(fnRest(m.value, m.line));
+          const fm = fnRest(m.value, m.line);
+          if (asyncMethod) fm.isAsync = true;
+          methods.push(fm);
           accept(";");
         }
         expect("}");
@@ -375,6 +387,7 @@ export function parser(tokens, opciones) {
     return b;
   }
   function unary() {
+    if (is("await")) { const L = peek().line; pos++; return { type: "await", value: unary(), line: L }; }
     if (is("-") || is("!")) { const L = peek().line, op = tokens[pos++].type; return { type: "unary", op, value: unary(), line: L }; }
     return postfix();
   }
@@ -530,6 +543,16 @@ export function parser(tokens, opciones) {
         pos++;
         const name = is("id") ? expect("id").value : "anonymous";
         return fnRest(name, L);
+      }
+      case "async": {
+        pos++;
+        let f;
+        if (accept("fn")) f = fnRest(is("id") ? expect("id").value : "anonymous", L);
+        else if (accept("||")) f = closure([], L);
+        else if (accept("|")) f = closure(params("|"), L);
+        else throw fail("Después de async va fn o un closure: async fn cargar() { } o async || { }");
+        f.isAsync = true;
+        return f;
       }
     }
     throw fail(`No se esperaba ${describe(t)}`, t);
