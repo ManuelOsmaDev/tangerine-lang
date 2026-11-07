@@ -1,6 +1,8 @@
-# 🍊 Tangerine
+<p align="center"><img src="https://raw.githubusercontent.com/ManuelOsmaDev/tangerine-lang/main/logo.svg" width="96" alt="Logo de Tangerine"></p>
 
-Tangerine es un lenguaje de programación pequeño con la sintaxis de Rust y Swift: llaves sin paréntesis, `match`, rangos, closures, clases y retorno implícito. Funciona en el navegador y en Node.js, y su intérprete no tiene dependencias.
+# Tangerine
+
+Tangerine es un micro framework para crear webs y apps con la sintaxis de Rust y Swift: llaves sin paréntesis, `match`, rangos, closures, clases y retorno implícito. Funciona en el navegador y en Node.js, y no tiene dependencias.
 
 **Lo que lo hace distinto**
 
@@ -259,7 +261,7 @@ Tangerine.registerPlugin(reloj); // para todas las instancias que se creen despu
 
 Los valores viajan así: los números, strings, booleanos y listas son los de JavaScript, `nil` es `null` y los mapas son objetos sin prototipo. `Tangerine.fromJS` y `Tangerine.toJS` convierten objetos completos.
 
-## El lenguaje en un vistazo
+## La sintaxis en un vistazo
 
 | Tema | Ejemplo |
 | --- | --- |

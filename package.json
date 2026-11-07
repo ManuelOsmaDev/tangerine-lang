@@ -1,13 +1,14 @@
 {
   "name": "tangerine-lang",
   "version": "3.1.1",
-  "description": "Tangerine: un lenguaje de programación pequeño con la sintaxis de Rust y Swift, para el navegador y Node.js",
+  "description": "Tangerine: un micro framework con la sintaxis de Rust y Swift para crear webs y apps, en el navegador y Node.js",
   "keywords": [
     "tangerine",
-    "lenguaje",
+    "framework",
+    "micro-framework",
     "interprete",
     "interpreter",
-    "programming-language",
+    "web",
     "rust",
     "swift",
     "educacion",

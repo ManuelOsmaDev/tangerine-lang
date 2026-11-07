@@ -1,7 +1,7 @@
 {
   "name": "tangerine-vscode",
   "displayName": "Tangerine",
-  "description": "Colores de sintaxis, fragmentos y ajustes para el lenguaje Tangerine (.tng)",
+  "description": "Colores de sintaxis, fragmentos y ajustes para Tangerine (.tng)",
   "version": "3.1.0",
   "publisher": "tangerine-lang",
   "license": "MIT",

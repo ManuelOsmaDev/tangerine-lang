@@ -21,7 +21,7 @@ export fn build_guide(guide) {
   let content = make(guide_grid, "div", "guia-contenido", nil)
   let guide_head = make(content, "header", "guia-cab", nil)
   make(guide_head, "h1", nil, "Guía de Tangerine")
-  make(guide_head, "p", "guia-intro", "Todo el lenguaje en {topics.len()} temas. Léela en orden o salta al tema que necesites.")
+  make(guide_head, "p", "guia-intro", "Todo Tangerine en {topics.len()} temas. Léela en orden o salta al tema que necesites.")
 
   fn paint_table(parent, table) {
     let frame = make(parent, "div", "tabla-marco", nil)
@@ -72,6 +72,6 @@ export fn build_guide(guide) {
   }
 
   let guide_end = make(content, "div", "guia-final", nil)
-  make(guide_end, "p", nil, "Ya conoces todo el lenguaje. Prueba lo que aprendiste:")
+  make(guide_end, "p", nil, "Ya conoces todo Tangerine. Prueba lo que aprendiste:")
   link(guide_end, "boton primario", "Abrir el playground", "playground")
 }

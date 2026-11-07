@@ -2,6 +2,8 @@
 
 ## 3.1.1
 
+- Logo nuevo: la naranja con el `>`, en el README, la web, el favicon y VS Code.
+- Tangerine se presenta como micro framework.
 - El README enlaza la web oficial y proyectos hechos con Tangerine, como Citrus.
 - `package.json` incluye `homepage`, `repository` y `bugs`, para que npm muestre esos enlaces.
 

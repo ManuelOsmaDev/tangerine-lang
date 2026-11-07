@@ -19,7 +19,7 @@ export fn build_home(home) {
   make(notice, "span", "aviso-punto", nil)
   make(notice, "span", nil, "Nuevo en 3.1: módulos, paquetes, CLI y componentes de React")
 
-  make(hero_text, "h1", nil, "La elegancia de Rust y Swift, en un lenguaje que cabe en una tarde.")
+  make(hero_text, "h1", nil, "La elegancia de Rust y Swift, en un micro framework que cabe en una tarde.")
   make(hero_text, "p", "heroe-lema", "Tangerine tiene pattern matching, closures, clases, rangos, nil seguro y retorno implícito. Su intérprete no usa dependencias y lo puedes leer de principio a fin.")
   let actions = make(hero_text, "div", "acciones", nil)
   link(actions, "boton primario", "Leer la guía", "guia")
@@ -42,7 +42,7 @@ export fn build_home(home) {
   let features_section = make(home, "section", "seccion", nil)
   let features_inner = make(features_section, "div", "contenedor", nil)
   let features_head = make(features_inner, "div", "seccion-cab", nil)
-  make(features_head, "h2", nil, "Lo mejor de los lenguajes modernos")
+  make(features_head, "h2", nil, "Lo mejor de la sintaxis moderna")
   make(features_head, "p", nil, "Ideas que vienen de Rust, Swift y Kotlin, en una versión pequeña que puedes entender completa.")
   let features_grid = make(features_inner, "div", "rejilla-rasgos", nil)
   for f in features {
