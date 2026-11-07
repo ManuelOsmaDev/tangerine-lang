@@ -11,6 +11,7 @@ export let topics = [
       'Tangerine es un micro framework con una sintaxis parecida a Swift y Angular: componentes con `@Component`, `@State`, `@Input` y `@Output`, la vista escrita como en SwiftUI, `match`, rangos, closures y retorno implícito. Cada componente es un Web Component que funciona en Angular, React, Vue o HTML.',
       'Cada ejemplo de esta guía muestra su salida real, calculada en tu navegador al abrir la página. Con el botón de cada bloque lo llevas al playground para modificarlo.',
       '`println` escribe uno o varios valores separados por espacios y termina la línea. `print` escribe sin terminarla. El punto y coma al final es opcional.',
+      'La guía empieza por el lenguaje: variables, funciones, listas y clases. Después llegan los componentes, que es lo que usarás para armar páginas y apps.',
     ],
     code: 'println("Hello, world!")
 println("Tangerine", 3.0, true)
@@ -92,7 +93,7 @@ var total = 100
 total += 50
 total *= 2
 println(total)',
-    tip: 'Como en Rust y Swift, solo `false` y `nil` cuentan como falsos en una condición. El `0` y el texto vacío `""` son verdaderos.',
+    tip: 'En Tangerine, solo `false` y `nil` cuentan como falsos en una condición. El `0` y el texto vacío `""` son verdaderos.',
   },
   {
     id: "textos",
@@ -134,7 +135,7 @@ println(fruit.replace("a", "o"), fruit.reversed())',
     title: "if y else",
     paragraphs: [
       '`if` ejecuta un bloque cuando se cumple la condición. Encadena casos con `else if` y cierra con `else`. La condición no lleva paréntesis y las llaves son obligatorias.',
-      'Como en Rust, `if` también es una expresión: devuelve el valor de la última línea del bloque que se ejecutó. Así puedes asignarlo directamente.',
+      'Como en Swift y Kotlin, `if` también es una expresión: devuelve el valor de la última línea del bloque que se ejecutó. Así puedes asignarlo directamente.',
     ],
     code: 'let temperature = 31
 
@@ -213,7 +214,7 @@ println(n)',
     title: "Funciones",
     paragraphs: [
       'Declara funciones con `fn`. Puedes anotar los tipos de los parámetros y del resultado con `->`.',
-      'Como en Rust, una función devuelve el valor de su última línea, sin escribir `return`. Usa `return` solo para salir antes.',
+      'Una función devuelve el valor de su última línea, sin escribir `return`. Usa `return` solo para salir antes.',
       'Los parámetros pueden tener un valor por defecto con `=`, que se usa cuando no pasas ese argumento. Los que faltan sin valor por defecto valen `nil`.',
       'Si algo falla dentro de una función, el error muestra el rastro de llamadas: qué función llamó a cuál y en qué línea.',
     ],
@@ -241,7 +242,7 @@ println(first_even([3, 7, 8, 10]))',
     group: "Funciones",
     title: "Closures",
     paragraphs: [
-      'Un closure es una función sin nombre que se escribe entre barras, al estilo de Rust: `|x| x * 2`. Si no recibe nada, se escribe `||`. Si necesita varias líneas, usa llaves.',
+      'Un closure es una función sin nombre que se escribe entre barras: `|x| x * 2`. Si no recibe nada, se escribe `||`. Si necesita varias líneas, usa llaves.',
       'Un closure recuerda las variables del lugar donde fue creado, aunque ese lugar ya haya terminado. Así puedes crear funciones con estado propio.',
     ],
     code: 'let double = |x| x * 2
@@ -340,7 +341,8 @@ println(product)',
     group: "Datos",
     title: "Clases",
     paragraphs: [
-      'Una clase agrupa datos y comportamiento. Declara campos con valor inicial usando `var` o `let`, y escribe `init` para preparar cada instancia. Dentro de los métodos, `self` es la instancia actual.',
+      'Una clase agrupa datos y comportamiento. Declara campos con valor inicial usando `var` o `let`, y escribe `init` para preparar cada instancia.',
+      'Como en Swift, dentro de los métodos usas los campos y los otros métodos por su nombre, sin `self.`. Escribe `self.` solo cuando un parámetro se llama igual que un campo, como en `init(name)`.',
       'Como en Swift, creas instancias llamando a la clase como una función, sin `new`. Para heredar escribe `class Hija : Padre`, y usa `super` para llamar a la versión del padre.',
     ],
     code: 'class Fruit {
@@ -352,7 +354,7 @@ println(product)',
   }
 
   fn describe() -> String {
-    "{self.name} at ${self.price}"
+    "{name} at ${price}"
   }
 }
 
@@ -364,7 +366,7 @@ class Mandarin : Fruit {
   }
 
   fn describe() -> String {
-    super.describe() + " with {self.segments} segments"
+    super.describe() + " with {segments} segments"
   }
 }
 
@@ -372,7 +374,7 @@ let m = Mandarin(3200)
 println(m.describe())
 println(type_of(m))
 println(m)',
-    tip: 'Si un método devuelve `self`, puedes encadenar llamadas: `basket.add(a).add(b)`. También puedes escribir `struct` en vez de `class`; funcionan igual.',
+    tip: 'Si un método devuelve `self`, puedes encadenar llamadas: `basket.add(a).add(b)`. También puedes escribir `struct` en vez de `class`; funcionan igual. Un `struct` con `view { }` es un componente.',
   },
   {
     id: "errores",
@@ -401,6 +403,116 @@ do {
 } catch {
   println("Line {error.line}: {error.message}")
 }',
+  },
+  {
+    id: "componentes",
+    group: "Componentes",
+    title: "Componentes",
+    paragraphs: [
+      'Un componente es un `struct` con un `view { }`. Lo que marcas con `@State` se vuelve a dibujar cuando cambia. Dentro del struct, los campos y métodos se usan sin `self.`, como en Swift.',
+      'Dentro del view, `div(.clase) { }` crea un elemento con clases, `button("+") { }` ejecuta el bloque al hacer clic, y `if` y `for` funcionan igual que siempre. `input($nombre)` une un campo con un estado.',
+      'Con `@Component("mi-contador")` el struct se registra como Web Component: `<mi-contador paso="2">` funciona en Angular, React, Vue o HTML. `tangerine build --componentes` genera un solo `.js` para cargarlo en tu proyecto.',
+      'Pruébalo: aquí no hay página, así que `render_html` muestra el HTML que se dibujaría.',
+    ],
+    code: '@Component("mi-contador")
+struct Contador {
+  @Input var paso = 1
+  @Output var cambio
+  @State var cuenta = 0
+
+  fn sumar() {
+    cuenta += paso
+    cambio.emit(cuenta)
+  }
+
+  view {
+    div(.tarjeta) {
+      p(.numero) { "{cuenta}" }
+      button("+") { sumar() }
+    }
+  }
+}
+
+let c = Contador()
+c.paso = 5
+c.cambio.listen(|v| println("cambio: {v}"))
+c.sumar()
+println(render_html(c))',
+    runnable: true,
+    table: {
+      columns: ["Qué", "Para qué"],
+      rows: [
+        ['`@State var x = 0`', 'Estado del componente: al cambiar, se vuelve a dibujar.'],
+        ['`@Input var x = 1`', 'Dato que llega de afuera, como atributo o propiedad.'],
+        ['`@Output var cambio`', 'Evento hacia afuera: `cambio.emit(valor)`.'],
+        ['`@Component("mi-x")`', 'Lo registra como la etiqueta `<mi-x>`.'],
+        ['`mount("#app", App)`', 'Dibuja un componente en la página.'],
+        ['`render_html(App())`', 'El HTML del view como texto.'],
+      ],
+    },
+  },
+  {
+    id: "frameworks",
+    group: "Componentes",
+    title: "En Angular, React y Vue",
+    paragraphs: [
+      'Cada `@Component` es un Web Component: una etiqueta HTML propia que el navegador entiende. Por eso un componente hecho en Tangerine funciona dentro de una app de Angular, React, Vue o Svelte que ya existe, sin reescribirla. Es la idea de los micro-frontends: cada equipo hace su pieza con la herramienta que quiera.',
+      'Crea el proyecto con `tangerine new mis-componentes --con componentes` y ejecuta `npm run build`. Sale `dist/componentes.js`, un solo archivo con el intérprete, tus componentes y tus estilos. Cárgalo una vez en la otra app y usa la etiqueta.',
+      'Los `@Input` llegan como atributos de texto o como propiedades con cualquier valor. Los `@Output` salen como eventos con el valor en `event.detail`. Los componentes se dibujan sin Shadow DOM, así que los estilos de tu app les llegan.',
+    ],
+    code: '<!-- HTML -->
+<script src="componentes.js"></script>
+<mi-contador paso="2"></mi-contador>
+
+<!-- Angular: componentes.js en "scripts" de angular.json
+     y schemas: [CUSTOM_ELEMENTS_SCHEMA] en el componente -->
+<mi-contador [paso]="2" (cambio)="total = $event.detail"></mi-contador>
+
+<!-- React: import "./componentes.js" en main.jsx -->
+<mi-contador paso="2" oncambio={(e) => setTotal(e.detail)} />
+
+<!-- Vue: isCustomElement: (t) => t.includes("-") en vite.config.js -->
+<mi-contador :paso="2" @cambio="total = $event.detail" />',
+    runnable: false,
+    table: {
+      columns: ["Dónde", "Cómo se conecta"],
+      rows: [
+        ['HTML', 'Atributos para los `@Input` y `addEventListener("cambio", ...)` para los `@Output`.'],
+        ['Angular', '`[paso]="valor"` para los `@Input` y `(cambio)="..."` para los `@Output`. Necesita `CUSTOM_ELEMENTS_SCHEMA`.'],
+        ['React 19', '`paso={valor}` y `oncambio={f}`, sin nada extra.'],
+        ['React 18', '`paso="2"` como texto; los eventos se escuchan con un `ref` y `addEventListener`.'],
+        ['Vue', '`:paso="valor"` y `@cambio="..."`, marcando las etiquetas con guion como elementos propios.'],
+      ],
+    },
+  },
+  {
+    id: "reactivo",
+    group: "Componentes",
+    title: "Estado reactivo",
+    paragraphs: [
+      'Un `state` guarda un dato y avisa cuando cambia. Todo lo que depende de él se actualiza solo: el texto de la página, un cálculo o un `effect`.',
+      'Se lee con `.get()` y se cambia con `.set(nuevo)` o `.update(|v| ...)`. Pruébalo: cada `set` vuelve a ejecutar el `effect`.',
+      'Dentro de un componente usa `@State`: es lo mismo, pero sin `.get()` ni `.set()`. `state` sirve para datos compartidos entre componentes o fuera de ellos.',
+    ],
+    code: 'let precio = state(10)
+let cantidad = state(2)
+let total = computed(|| precio.get() * cantidad.get())
+
+effect(|| println("Total: {total}"))
+
+cantidad.set(3)
+precio.update(|p| p + 5)',
+    runnable: true,
+    table: {
+      columns: ["Función", "Qué hace"],
+      rows: [
+        ['`state(valor)`', 'Guarda un dato que se puede observar.'],
+        ['`computed(|| ...)`', 'Un dato que se calcula a partir de otros y se recalcula solo.'],
+        ['`effect(|| ...)`', 'Código que se repite cada vez que cambia un estado que usa.'],
+        ['`bind(campo, estado)`', 'Une un campo de formulario con un estado en los dos sentidos.'],
+        ['`render(contenedor, || ...)`', 'Vuelve a dibujar una parte de la página cuando cambia lo que usa.'],
+      ],
+    },
   },
   {
     id: "modulos",
@@ -448,7 +560,8 @@ println(Cesta().add("lime").items)',
     paragraphs: [
       'Instala Tangerine con `npm install -g tangerine-lang` y tendrás el comando `tangerine`. Sin argumentos abre un REPL donde pruebas código línea por línea.',
       'Fuera del navegador hay funciones para trabajar con archivos: `read_file`, `write_file`, `file_exists`, `list_dir`, `args()` y `env(nombre)`.',
-      '`tangerine new` crea un proyecto web con módulos y recarga automática. `tangerine build` lo empaqueta en un solo `index.html` que puedes publicar en cualquier hosting estático.',
+      '`tangerine new` crea un proyecto web con componentes y recarga automática. `tangerine build` lo empaqueta en un solo `index.html` que puedes publicar en cualquier hosting estático.',
+      '`tangerine new mis-componentes --con componentes` crea un proyecto de Web Components, y `tangerine build --componentes` los junta en un `.js` para usarlos en Angular, React o Vue.',
     ],
     code: '// contar.tng   ->   tangerine contar.tng notas.txt
 let archivo = args().first() ?? "notas.txt"
@@ -467,9 +580,10 @@ println("{archivo}: {texto.lines().len()} líneas, {texto.words().len()} palabra
         ['`tangerine`', 'Abre el REPL interactivo.'],
         ['`tangerine archivo.tng`', 'Ejecuta un archivo. Los argumentos extra llegan en `args()`.'],
         ['`tangerine check *.tng`', 'Revisa la sintaxis sin ejecutar.'],
-        ['`tangerine new mi-app`', 'Crea un proyecto web nuevo. Con `--con react`, `vue`, `svelte`, `angular`, `next`, `astro`, `expo`, `swift`, `flutter`, `consola` o `paquete` usa otra plantilla.'],
+        ['`tangerine new mi-app`', 'Crea un proyecto web nuevo. Con `--con componentes`, `react`, `vue`, `svelte`, `angular`, `next`, `astro`, `expo`, `swift`, `flutter`, `consola` o `paquete` usa otra plantilla.'],
         ['`tangerine dev`', 'Construye, sirve en localhost:3000 y recarga al guardar.'],
         ['`tangerine build`', 'Empaqueta el proyecto según `tangerine.json`.'],
+        ['`tangerine build --componentes`', 'Genera `dist/componentes.js` con tus `@Component`, listo para Angular, React o Vue.'],
         ['`tangerine install node git swift…`', 'Instala herramientas con winget, Homebrew o npm. Pregunta antes de ejecutar.'],
         ['`tangerine doctor`', 'Revisa qué herramientas tienes instaladas.'],
         ['`tangerine vscode`', 'Instala la extensión de Tangerine para VS Code.'],
@@ -509,6 +623,7 @@ println(mezclar(NARANJA, paleta.blanco))',
       'Con `tangerine new mi-app --con react` tienes React y Vite con componentes escritos en Tangerine. Desde JavaScript se importan como cualquier módulo: `import { App } from "./App.tng"`.',
       '`h(etiqueta, props, ...hijos)` crea elementos, y `use_state`, `use_effect`, `use_memo` y `use_ref` son los hooks de siempre. Los eventos van en props como `on_click` o `on_change` y reciben un mapa con `value`, `key` y `prevent()`.',
       'En proyectos de Vue, Svelte o Vite puro, el plugin `tangerine-lang/vite` permite importar archivos `.tng` desde JavaScript.',
+      'Si ya tienes una app de React y solo quieres sumarle piezas hechas en Tangerine, lo más simple es usar Web Components: mira la sección En Angular, React y Vue.',
     ],
     code: 'export fn Contador(props) {
   let (n, set_n) = use_state(props.inicio ?? 0)
@@ -532,7 +647,7 @@ println(mezclar(NARANJA, paleta.blanco))',
     code: 'struct Order {
   var items = []
   init(customer) { self.customer = customer }
-  fn add(item) { self.items.push(item); self }
+  fn add(item) { items.push(item); self }
 }
 
 fn summary(order) {
@@ -556,6 +671,7 @@ println(summary(Order("Ana").add("lime").add("mandarin")))',
         ['`do`, `catch`, `throw`', 'Manejar errores.'],
         ['`import`, `export`', 'Compartir código entre archivos.'],
         ['`true`, `false`, `nil`', 'Los valores booleanos y la ausencia de valor.'],
+        ['`@Component`, `@State`, `@Input`, `@Output`, `view`', 'Decoradores y vista de los componentes. `view` solo es especial dentro de un struct.'],
       ],
     },
   },
@@ -587,20 +703,53 @@ assert(1 + 1 == 2, "math is broken")',
         ['`n.round(d)`, `n.floor()`, `n.ceil()`, `n.abs()`, `n.sqrt()`, `n.pow(e)`', 'Métodos matemáticos de los números.'],
         ['`n.is_even()`, `n.is_odd()`, `n.clamp(a, b)`, `n.to_int()`, `n.times(f)`', 'Más métodos útiles de los números.'],
         ['`x.to_string()`', 'Convierte cualquier valor en string.'],
+        ['`state(v)`, `computed(f)`, `effect(f)`', 'Estado reactivo: ver la sección Estado reactivo.'],
+        ['`render_html(componente)`', 'El HTML que dibuja un componente, como texto.'],
       ],
     },
   },
   {
-    id: "componentes",
+    id: "navegador",
     group: "Referencia",
-    title: "Componentes",
+    title: "Tangerine en el navegador",
     paragraphs: [
-      'Un componente es un `struct` con un `view { }`. Lo que marcas con `@State` se vuelve a dibujar cuando cambia. Dentro del struct, los campos y métodos se usan sin `self.`, como en Swift.',
-      'Dentro del view, `div(.clase) { }` crea un elemento con clases, `button("+") { }` ejecuta el bloque al hacer clic, y `if` y `for` funcionan igual que siempre. `input($nombre)` une un campo con un estado.',
-      'Con `@Component("mi-contador")` el struct se registra como Web Component: `<mi-contador paso="2">` funciona en Angular, React, Vue o HTML. `tangerine build --componentes` genera un solo `.js` para cargarlo en tu proyecto.',
-      'Pruébalo: aquí no hay página, así que `render_html` muestra el HTML que se dibujaría.',
+      'Esta página está escrita en Tangerine. El HTML solo trae un elemento vacío, los estilos y el intérprete; el programa crea todo lo demás.',
+      'Para usar Tangerine en tu propia página sin instalar nada, carga `tangerine.global.min.js` desde jsDelivr y escribe tu programa dentro de `<script type="text/tangerine">`. Se ejecuta solo al cargar la página. Lo normal es dibujar un componente con `mount`.',
+      'Si necesitas tocar la página a mano, hay funciones de bajo nivel como `query`, `el` y `on`. Solo existen en el programa de la página: en el playground no están, así tus pruebas no pueden cambiarla.',
     ],
-    code: '@Component("mi-contador")
+    code: 'struct App {
+  @State var abierto = false
+
+  view {
+    div(.card, { class: if abierto { "active" } else { nil } }) {
+      h3 { "Hello" }
+      button(if abierto { "Cerrar" } else { "Abrir" }) { abierto = !abierto }
+    }
+  }
+}
+
+mount("#app", App)',
+    runnable: false,
+    table: {
+      columns: ["Función", "Qué hace"],
+      rows: [
+        ['`mount(selector, Componente)`', 'Dibuja un componente en la página y lo mantiene al día.'],
+        ['`query(selector)`', 'Busca un elemento con un selector CSS.'],
+        ['`el(etiqueta, clase, texto)`', 'Crea un elemento nuevo.'],
+        ['`append(padre, hijo)`', 'Pone un elemento dentro de otro y lo devuelve.'],
+        ['`set_text(e, texto)`, `attr(e, nombre, valor)`', 'Cambia el texto o un atributo.'],
+        ['`toggle_class(e, clase, on)`, `set_visible(e, on)`', 'Pone o quita una clase, muestra u oculta.'],
+        ['`on(e, evento, f)`', 'Ejecuta `f` cuando pasa algo, como un clic. Si `f` recibe un parámetro, le llega un mapa con `type`, `key` y `value`.'],
+        ['`query_all(selector)`, `set_style(e, prop, valor)`', 'Busca todos los elementos que coinciden o cambia un estilo.'],
+        ['`after(ms, f)`, `save(clave, valor)`, `load(clave)`', 'Ejecuta algo más tarde, o guarda y lee datos en el navegador.'],
+        ['`run(código)`', 'Ejecuta otro programa de Tangerine y devuelve su salida. Así funciona el playground.'],
+      ],
+    },
+  },
+]
+
+export let samples = [
+  { file: "contador.tng", code: '@Component("mi-contador")
 struct Contador {
   @Input var paso = 1
   @Output var cambio
@@ -620,84 +769,10 @@ struct Contador {
 }
 
 let c = Contador()
-c.paso = 5
+c.paso = 2
 c.cambio.listen(|v| println("cambio: {v}"))
 c.sumar()
-println(render_html(c))',
-    runnable: true,
-    table: {
-      columns: ["Qué", "Para qué"],
-      rows: [
-        ['`@State var x = 0`', 'Estado del componente: al cambiar, se vuelve a dibujar.'],
-        ['`@Input var x = 1`', 'Dato que llega de afuera, como atributo o propiedad.'],
-        ['`@Output var cambio`', 'Evento hacia afuera: `cambio.emit(valor)`.'],
-        ['`@Component("mi-x")`', 'Lo registra como la etiqueta `<mi-x>`.'],
-        ['`mount("#app", App)`', 'Dibuja un componente en la página.'],
-        ['`render_html(App())`', 'El HTML del view como texto.'],
-      ],
-    },
-  },
-  {
-    id: "reactivo",
-    group: "Referencia",
-    title: "Estado reactivo",
-    paragraphs: [
-      'Un `state` guarda un dato y avisa cuando cambia. Todo lo que depende de él se actualiza solo: el texto de la página, un cálculo o un `effect`.',
-      'Se lee con `.get()` y se cambia con `.set(nuevo)` o `.update(|v| ...)`. Pruébalo: cada `set` vuelve a ejecutar el `effect`.',
-      'En una página, las funciones como `el`, `set_text` o `toggle_class` aceptan un estado y lo siguen. Por ejemplo, `el("p", nil, cuenta)` muestra siempre el valor actual de `cuenta`.',
-    ],
-    code: 'let precio = state(10)
-let cantidad = state(2)
-let total = computed(|| precio.get() * cantidad.get())
-
-effect(|| println("Total: {total}"))
-
-cantidad.set(3)
-precio.update(|p| p + 5)',
-    runnable: true,
-    table: {
-      columns: ["Función", "Qué hace"],
-      rows: [
-        ['`state(valor)`', 'Guarda un dato que se puede observar.'],
-        ['`computed(|| ...)`', 'Un dato que se calcula a partir de otros y se recalcula solo.'],
-        ['`effect(|| ...)`', 'Código que se repite cada vez que cambia un estado que usa.'],
-        ['`bind(campo, estado)`', 'Une un campo de formulario con un estado en los dos sentidos.'],
-        ['`render(contenedor, || ...)`', 'Vuelve a dibujar una parte de la página cuando cambia lo que usa.'],
-      ],
-    },
-  },
-  {
-    id: "navegador",
-    group: "Referencia",
-    title: "Tangerine en el navegador",
-    paragraphs: [
-      'Esta página está escrita en Tangerine. El HTML solo trae un elemento vacío, los estilos y el intérprete. El programa crea todo lo demás con unas funciones extra que conectan el lenguaje con el navegador.',
-      'Esas funciones solo existen en el programa de la página. En el playground no están disponibles, así tus pruebas no pueden cambiar la página.',
-      'Para usarlas en tu propia página, carga `tangerine.global.min.js` desde jsDelivr y escribe tu programa dentro de `<script type="text/tangerine">`. Se ejecuta solo al cargar la página.',
-    ],
-    code: 'let card = el("div", "card")
-append(card, el("h3", nil, "Hello"))
-on(card, "click", || toggle_class(card, "active", true))
-append(query("#app"), card)',
-    runnable: false,
-    table: {
-      columns: ["Función", "Qué hace"],
-      rows: [
-        ['`query(selector)`', 'Busca un elemento con un selector CSS.'],
-        ['`el(etiqueta, clase, texto)`', 'Crea un elemento nuevo.'],
-        ['`append(padre, hijo)`', 'Pone un elemento dentro de otro y lo devuelve.'],
-        ['`set_text(e, texto)`, `attr(e, nombre, valor)`', 'Cambia el texto o un atributo.'],
-        ['`toggle_class(e, clase, on)`, `set_visible(e, on)`', 'Pone o quita una clase, muestra u oculta.'],
-        ['`on(e, evento, f)`', 'Ejecuta `f` cuando pasa algo, como un clic. Si `f` recibe un parámetro, le llega un mapa con `type`, `key` y `value`.'],
-        ['`query_all(selector)`, `set_style(e, prop, valor)`', 'Busca todos los elementos que coinciden o cambia un estilo.'],
-        ['`after(ms, f)`, `save(clave, valor)`, `load(clave)`', 'Ejecuta algo más tarde, o guarda y lee datos en el navegador.'],
-        ['`run(código)`', 'Ejecuta otro programa de Tangerine y devuelve su salida. Así funciona el playground.'],
-      ],
-    },
-  },
-]
-
-export let samples = [
+println(render_html(c))' },
   { file: "hello.tng", code: 'let name = "world"
 println("Hello, {name}!")
 println("2 + 3 * 4 = {2 + 3 * 4}")' },
@@ -798,9 +873,9 @@ for n in [10, 30, 70] {
 
 export let features = [
   { id: "match", icon: "match", title: "Pattern matching", text: "Compara un valor con rangos, opciones y condiciones en un solo bloque claro." },
-  { id: "closures", icon: "|x|", title: "Closures", text: "Funciones de una línea, al estilo de Rust, que recuerdan su entorno." },
-  { id: "clases", icon: "class", title: "Clases y herencia", text: "Campos con valor inicial, init, self y super. Sin new, como en Swift." },
-  { id: "react", icon: "h()", title: "Componentes de React", text: "Escribe componentes con hooks en Tangerine e impórtalos desde React con Vite." },
+  { id: "componentes", icon: "@State", title: "Componentes", text: 'Un struct con view { }, como en SwiftUI. Lo que marcas con @State se vuelve a dibujar solo.' },
+  { id: "clases", icon: "class", title: "Clases y herencia", text: "Campos con valor inicial, init y super. Sin new ni self., como en Swift." },
+  { id: "frameworks", icon: "<mi-x>", title: "Angular, React y Vue", text: "Cada @Component es un Web Component: úsalo en la app que ya tienes, sin reescribirla." },
   { id: "modulos", icon: "import", title: "Módulos", text: "Divide tu programa en archivos con import y export, y reutilízalos donde quieras." },
   { id: "mapas", icon: "?.", title: "Nil seguro", text: "Encadena lecturas con ?. y da valores por defecto con ??." },
   { id: "listas", icon: "[ ]", title: "Listas expresivas", text: "Más de 30 métodos: map, filter, fold, zip, enumerate, sorted_by_key." },

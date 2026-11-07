@@ -15,12 +15,12 @@ export fn build_home(home) {
   let hero_grid = make(hero, "div", "contenedor heroe-rejilla", nil)
   let hero_text = make(hero_grid, "div", "heroe-texto", nil)
 
-  let notice = link(hero_text, "aviso", nil, "guia-modulos")
+  let notice = link(hero_text, "aviso", nil, "guia-frameworks")
   make(notice, "span", "aviso-punto", nil)
-  make(notice, "span", nil, "Nuevo en 3.1: módulos, paquetes, CLI y componentes de React")
+  make(notice, "span", nil, "Nuevo en 4.0: componentes que funcionan en Angular, React y Vue")
 
   make(hero_text, "h1", nil, "La elegancia de Swift y Angular, en un micro framework que cabe en una tarde.")
-  make(hero_text, "p", "heroe-lema", "Tangerine tiene pattern matching, closures, clases, rangos, nil seguro y retorno implícito. Su intérprete no usa dependencias y lo puedes leer de principio a fin.")
+  make(hero_text, "p", "heroe-lema", "Componentes con @Component, @State, @Input y @Output, y la vista escrita como en SwiftUI. Cada componente es un Web Component que puedes sumar a tu app de Angular, React o Vue. Sin dependencias.")
   let actions = make(hero_text, "div", "acciones", nil)
   link(actions, "boton primario", "Leer la guía", "guia")
   link(actions, "boton", "Abrir el playground", "playground")
@@ -33,17 +33,17 @@ export fn build_home(home) {
 
   let window_box = make(scene, "div", "ventana", nil)
   let window_head = make(window_box, "div", "ventana-cab", nil)
-  make(window_head, "span", nil, samples[1].file)
+  make(window_head, "span", nil, samples[0].file)
   make(window_head, "span", "en-vivo", "Ejecutado en tu navegador")
-  highlight(make(window_box, "pre", nil, nil), samples[1].code)
-  paint_output(window_box, run(samples[1].code), "ventana-salida")
+  highlight(make(window_box, "pre", nil, nil), samples[0].code)
+  paint_output(window_box, run(samples[0].code), "ventana-salida")
 
   // Features
   let features_section = make(home, "section", "seccion", nil)
   let features_inner = make(features_section, "div", "contenedor", nil)
   let features_head = make(features_inner, "div", "seccion-cab", nil)
   make(features_head, "h2", nil, "Lo mejor de la sintaxis moderna")
-  make(features_head, "p", nil, "Ideas que vienen de Rust, Swift y Kotlin, en una versión pequeña que puedes entender completa.")
+  make(features_head, "p", nil, "Ideas que vienen de Swift, Angular y Kotlin, en una versión pequeña que puedes entender completa.")
   let features_grid = make(features_inner, "div", "rejilla-rasgos", nil)
   for f in features {
     let card = link(features_grid, "rasgo", nil, "guia-" + f.id)
@@ -63,7 +63,7 @@ export fn build_home(home) {
   let install_steps = make(install_inner, "ol", "flujo", nil)
   for (title, text, command) in [
     ("Instala", "Agrega el comando tangerine a tu terminal.", "npm install -g tangerine-lang"),
-    ("Crea un proyecto", "Una página en Tangerine, o React, Vue, Angular, Swift y más con --con.", "tangerine new mi-app\ntangerine new app --con react"),
+    ("Crea un proyecto", "Una página con componentes, o Web Components para tu app de Angular, React o Vue.", "tangerine new mi-app\ntangerine new mis-componentes --con componentes"),
     ("Ejecuta", "Abre el servidor de desarrollo. Al publicar, build crea un solo HTML.", "cd mi-app\nnpm install\nnpm run dev"),
   ] {
     let li = make(install_steps, "li", "flujo-paso", nil)

@@ -585,6 +585,15 @@ export function sx(n) {
     case "for": return `(for ${tgt(n.target)} ${sx(n.iter)} ${sx(n.body)})`;
     case "import": return `(import ${n.alias || "{" + n.names.map((x) => x[1]).join(" ") + "}"} ${JSON.stringify(n.path)})`;
     case "export": return `(export ${sx(n.decl)})`;
+    case "cls": return "." + n.name;
+    case "bindref": return "$" + n.name;
+    case "elem": {
+      const tag = n.tag.type === "lit" ? n.tag.value : sx(n.tag);
+      const args = n.args.map((a) => " " + sx(a)).join("");
+      const content = n.content ? " " + sx(n.content) : "";
+      const action = n.action ? ` (click ${sx(n.action.body)})` : "";
+      return `(<${tag}>${args}${content}${action})`;
+    }
   }
   return `(${n.type})`;
 }
