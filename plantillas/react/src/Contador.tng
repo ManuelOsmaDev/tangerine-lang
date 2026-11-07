@@ -3,7 +3,7 @@ export fn Contador(props) {
 
   // Se ejecuta cada vez que cambia n (míralo en la consola del navegador)
   use_effect(|| {
-    println("El contador va en {n}")
+    log("El contador va en {n}")
   }, [n])
 
   h("div", { class: "botones" },

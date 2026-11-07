@@ -16,8 +16,8 @@ for p in productos.sorted_by_key(|p| -p.valor()) {
     1..10 => "quedan pocos",
     _ => "{p.kilos} kg",
   }
-  println("{p.nombre.capitalize().pad_end(10)} {estado.pad_end(14)} {formato_precio(p.valor())}")
+  log("{p.nombre.capitalize().pad_end(10)} {estado.pad_end(14)} {formato_precio(p.valor())}")
 }
 
 let total = productos.fold(0, |s, p| s + p.valor())
-println("Total en bodega: {formato_precio(total)}")
+log("Total en bodega: {formato_precio(total)}")

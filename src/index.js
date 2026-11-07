@@ -33,12 +33,12 @@ export function resolveWithMap(spec, from, imports) {
  *
  * @example
  * const tng = new Tangerine({ output: (linea) => console.log(linea) });
- * tng.run('println("Hola")');
+ * tng.run('log("Hola")');
  */
 export class Tangerine {
   /**
    * @param {object} [opciones]
-   * @param {(linea: string) => void} [opciones.output] recibe cada línea que escribe println
+   * @param {(linea: string) => void} [opciones.output] recibe cada línea que escribe log
    * @param {number} [opciones.stepLimit] máximo de pasos por ejecución; 0 o ausente = sin límite
    * @param {Record<string, any>} [opciones.natives] funciones y valores globales extra
    * @param {Array} [opciones.plugins] plugins a instalar

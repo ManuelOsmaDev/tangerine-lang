@@ -44,7 +44,7 @@ describe("sugerencias", () => {
     expect(sugerir("zzzz", ["contador"])).toBe(null);
   });
   it("los errores incluyen ¿Quisiste decir?", () => {
-    expect(error("let nombre = 1\nprintln(nombr)")).toBe("Línea 2: No existe 'nombr' en este ámbito. ¿Quisiste decir 'nombre'?");
+    expect(error("let nombre = 1\nlog(nombr)")).toBe("Línea 2: No existe 'nombr' en este ámbito. ¿Quisiste decir 'nombre'?");
     expect(error('"hola".toUpperCase()')).toMatch(/¿Quisiste decir 'upper'\?/);
     expect(error("let x = null")).toMatch(/¿Quisiste decir 'nil'\?/);
     expect(error("class P { var edad = 1 }\nP().eda")).toMatch(/¿Quisiste decir 'edad'\?/);
@@ -90,7 +90,7 @@ describe("paquetes", () => {
   });
   it("import() y forget() desde JavaScript", () => {
     const out = [];
-    const tng = new Tangerine({ output: (l) => out.push(l), modules: { "m.tng": 'println("carga")\nexport let x = 1' } });
+    const tng = new Tangerine({ output: (l) => out.push(l), modules: { "m.tng": 'log("carga")\nexport let x = 1' } });
     expect(tng.import("m").x).toBe(1);
     tng.import("m");
     tng.forget("m").import("m");
@@ -176,7 +176,7 @@ describe("CLI: plantillas, herramientas y paquetes", () => {
     fs.writeFileSync(path.join(pkg, "lib", "main.tng"), 'import { signo } from "./signo"\nexport fn hola(n) { "Hola {n}{signo}" }');
     fs.writeFileSync(path.join(pkg, "lib", "signo.tng"), 'export let signo = "!"');
     fs.mkdirSync(path.join(tmp, "src"));
-    fs.writeFileSync(path.join(tmp, "src", "main.tng"), 'import { hola } from "saludos"\nprintln(hola("Ana"))');
+    fs.writeFileSync(path.join(tmp, "src", "main.tng"), 'import { hola } from "saludos"\nlog(hola("Ana"))');
     expect(tangerine(["src/main.tng"], tmp).stdout).toBe("Hola Ana!\n");
     expect(tangerine(["build"], tmp).status).toBe(0);
     const html = fs.readFileSync(path.join(tmp, "dist", "index.html"), "utf8");

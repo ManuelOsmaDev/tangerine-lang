@@ -93,8 +93,8 @@ Opciones: `--limite <n>` (máximo de pasos), `-p <puerto>`, `-o <salida>`, `--en
 Los errores dicen dónde está el problema:
 
 ```
-error: app.tng, línea 2, columna 1: Se esperaba ']' pero se encontró 'println'
-  2 │ println(x)
+error: app.tng, línea 2, columna 1: Se esperaba ']' pero se encontró 'log'
+  2 │ log(x)
     │ ^
 ```
 
@@ -351,9 +351,9 @@ const tng = new Tangerine({
   modules: { "mate.tng": "export let IVA = 0.19" },
 });
 
-tng.run('import { IVA } from "./mate"\nprintln(doble(21), IVA)');   // 42 0.19
+tng.run('import { IVA } from "./mate"\nlog(doble(21), IVA)');   // 42 0.19
 
-const { output, error } = tng.runCode("println(1 / 0)");
+const { output, error } = tng.runCode("log(1 / 0)");
 // output: [], error: "Línea 1: División entre cero"
 ```
 
@@ -417,7 +417,7 @@ Los valores viajan así: los números, strings, booleanos y listas son los de Ja
 | Clases | `class Hija : Madre { init(x) { self.x = x } }`, `super.metodo()` |
 | Componentes | `@Component("mi-x") struct X { @State var n = 0; view { p { "{n}" } } }` |
 | Nil seguro | `usuario?.direccion?.ciudad ?? "sin ciudad"` |
-| Errores | `do { throw "falló" } catch e { println(e.message) }` |
+| Errores | `do { throw "falló" } catch e { log(e.message) }` |
 | Módulos | `export fn f() {}`, `import { f as g } from "./util"`, `import util from "./util"` |
 
 La guía completa, con ejemplos que se ejecutan en el navegador, está en el sitio (`sitio/`).

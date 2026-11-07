@@ -27,7 +27,7 @@ const EQUIVALENTES = {
   includes: "contains", indexOf: "index_of", forEach: "for_each", toString: "to_string",
   startsWith: "starts_with", endsWith: "ends_with", padStart: "pad_start", padEnd: "pad_end",
   reverse: "reversed", sort: "sorted", append: "push", add: "push", strip: "trim",
-  console: "println", print_line: "println", printf: "print", log: "println",
+  console: "log", println: "log", print: "log", print_line: "log", printf: "write", puts: "log", echo: "log",
   null: "nil", None: "nil", undefined: "nil", True: "true", False: "false", self_: "self",
   const: "let", def: "fn", function: "fn", func: "fn", elif: "else if", try: "do", except: "catch",
 };

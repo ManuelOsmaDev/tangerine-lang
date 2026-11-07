@@ -12,7 +12,7 @@
 - Archivos: extensión **`.tng`**, codificación UTF-8.
 - Paquete npm: **`tangerine-lang`**. Comando de terminal: **`tangerine`**.
 - Los mensajes de error están en **español**, con archivo, línea, columna (en errores de sintaxis), rastro de llamadas y sugerencias "¿Quisiste decir…?".
-- Las palabras clave y las funciones incluidas están en **inglés** (`let`, `fn`, `println`, `len`…).
+- Las palabras clave y las funciones incluidas están en **inglés** (`let`, `fn`, `log`, `len`…).
 
 ```bash
 npm install -g tangerine-lang   # comando global `tangerine`
@@ -89,9 +89,9 @@ var pendiente                 // var sin valor vale nil
 
 ```rust
 let fruta = "mandarina"
-println("Compré {2 + 1} kg de {fruta.upper()}")
-println('Literal: {fruta}')
-println("Llave literal: \{")
+log("Compré {2 + 1} kg de {fruta.upper()}")
+log('Literal: {fruta}')
+log("Llave literal: \{")
 ```
 
 Dentro de `{...}` va cualquier expresión, incluso con strings: `"{x ?? "nada"}"`.
@@ -111,7 +111,7 @@ let nota = match puntaje {
   _ => "F",
 }
 // Si ningún caso coincide, es un error: termina siempre con _ =>.
-// Un caso puede tener un bloque: x => { println(x); x * 2 }
+// Un caso puede tener un bloque: x => { log(x); x * 2 }
 ```
 
 Patrones de `match`: números (también negativos), strings, `true`, `false`, `nil`, rangos `a..b` y `a..=b`, `_`, un nombre (captura el valor), varios unidos con `|` y una guarda `if condición`. **No** hay desarmado de listas ni mapas en los patrones.
@@ -151,7 +151,7 @@ fn primer_par(nums) {
 
 let doble = |x| x * 2                // closure de una expresión
 let suma = |a, b = 10| a + b         // closures con valor por defecto
-let tarea = || { println("sin parámetros"); 42 }
+let tarea = || { log("sin parámetros"); 42 }
 
 fn contador() {
   var n = 0
@@ -184,7 +184,7 @@ class Mandarina : Fruta {             // herencia
 }
 
 let m = Mandarina("clementina").pesar(2)
-println(m.describir(), type_of(m))    // Mandarina: clementina de 2 kg Mandarina
+log(m.describir(), type_of(m))    // Mandarina: clementina de 2 kg Mandarina
 ```
 
 - `struct` es sinónimo de `class`.
@@ -199,7 +199,7 @@ println(m.describir(), type_of(m))    // Mandarina: clementina de 2 kg Mandarina
 do {
   let x = no_existe + 1
 } catch e {                            // sin nombre se llama `error`
-  println(e.message, e.line)
+  log(e.message, e.line)
 }
 
 fn dividir(a, b) {
@@ -247,8 +247,8 @@ import paleta from "colores/paleta"   // archivo dentro de un paquete
 
 | Función | Qué hace |
 | --- | --- |
-| `println(...)` | Escribe los valores separados por espacio y termina la línea. |
-| `print(...)` | Escribe sin terminar la línea. Se vacía en el próximo `println` o al terminar. |
+| `log(...)` | Escribe los valores separados por espacio y termina la línea. |
+| `write(...)` | Escribe sin terminar la línea. Se vacía en el próximo `log` o al terminar. |
 | `type_of(x)` | Nombre del tipo: `"Int"`, `"List"`, `"Mandarina"`… |
 | `assert(cond, mensaje?)` | Lanza un error si `cond` es falso. |
 | `min(...)`, `max(...)` | De varios números o de una lista: `min(3, 1)`, `max([4, 9])`. |
@@ -427,7 +427,7 @@ Conversión de props: `class` pasa a `className`, `for` a `htmlFor` y `on_click`
 ```rust
 export fn Contador(props) {
   let (n, set_n) = use_state(props.inicio ?? 0)
-  use_effect(|| { println("va en {n}") }, [n])
+  use_effect(|| { log("va en {n}") }, [n])
   h("div", { class: "contador" },
     h("button", { on_click: || set_n(|x| x - 1) }, "−"),
     h("span", nil, n),
@@ -521,10 +521,10 @@ const tng = new Tangerine({
   modules: { "mate.tng": "export let IVA = 0.19" },
 });
 
-tng.run('import { IVA } from "./mate"\nprintln(doble(21), IVA)');   // escribe "42 0.19"
+tng.run('import { IVA } from "./mate"\nlog(doble(21), IVA)');   // escribe "42 0.19"
 const valor = tng.run("let a = 20\na + 22");                         // 42
 
-const r = tng.runCode("println(1 / 0)");   // nunca lanza
+const r = tng.runCode("log(1 / 0)");   // nunca lanza
 // r.output: [], r.error: "Línea 1: División entre cero", r.trace: []
 ```
 
@@ -532,7 +532,7 @@ const r = tng.runCode("println(1 / 0)");   // nunca lanza
 
 | Opción | Tipo | Qué hace |
 | --- | --- | --- |
-| `output` | `(linea) => void` | Recibe cada línea de `println`. |
+| `output` | `(linea) => void` | Recibe cada línea de `log`. |
 | `stepLimit` | `number` | Máximo de pasos por ejecución. |
 | `natives` | `{ nombre: valor }` | Globales extra. |
 | `plugins` | `Plugin[]` | Plugins a instalar. |
@@ -582,7 +582,7 @@ Estáticos: `Tangerine.VERSION`, `Tangerine.runCode(código, opciones?)`, `Tange
 
 ```js
 try {
-  tng.run("println(nombr)", { file: "app.tng" });
+  tng.run("log(nombr)", { file: "app.tng" });
 } catch (e) {
   e.line, e.col, e.file;   // ubicación
   e.incomplete;            // true si al código le falta cerrar algo (útil en un REPL)
@@ -696,16 +696,16 @@ import { resumen } from "./texto.tng"
 
 let archivo = args().first()
 if archivo == nil {
-  println("Uso: tangerine contar.tng <archivo>")
+  log("Uso: tangerine contar.tng <archivo>")
   exit(1)
 }
 if !file_exists(archivo) {
-  println("No existe {archivo}")
+  log("No existe {archivo}")
   exit(1)
 }
 
 let r = resumen(read_file(archivo))
-println("{archivo}: {r.lineas} líneas, {r.palabras} palabras")
+log("{archivo}: {r.lineas} líneas, {r.palabras} palabras")
 ```
 
 ```rust

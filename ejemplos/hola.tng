@@ -1,3 +1,3 @@
 // tangerine ejemplos/hola.tng Ana
 let nombre = args().first() ?? "mundo"
-println("Hola, {nombre}!")
+log("Hola, {nombre}!")

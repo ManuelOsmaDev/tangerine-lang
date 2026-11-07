@@ -16,8 +16,8 @@ describe("lexer", () => {
   });
 
   it("guarda línea y columna de cada token", () => {
-    const t = lexer("let a = 1\n  println(a)");
-    const p = t.find((x) => x.value === "println");
+    const t = lexer("let a = 1\n  log(a)");
+    const p = t.find((x) => x.value === "log");
     expect([p.line, p.col]).toEqual([2, 3]);
   });
 
@@ -49,7 +49,7 @@ describe("parser", () => {
   });
 
   it("informa línea y columna en errores de sintaxis", () => {
-    try { parse("let x = [1, 2\nprintln(x)"); }
+    try { parse("let x = [1, 2\nlog(x)"); }
     catch (e) {
       expect(e).toBeInstanceOf(TngError);
       expect([e.line, e.col]).toEqual([2, 1]);
@@ -65,12 +65,17 @@ describe("parser", () => {
 });
 
 describe("evaluador", () => {
-  it("escribe con println y print", () => {
-    expect(salida('print("a ")\nprint("b")\nprintln()\nprintln(1, 2.5, true, nil)')).toEqual(["a b", "1 2.5 true nil"]);
+  it("los nombres de otros lenguajes sugieren log", () => {
+    for (const viejo of ["println(1)", "print(1)", "console.log(1)"])
+      expect(Tangerine.runCode(viejo).error).toMatch(/¿Quisiste decir 'log'\?/);
+  });
+
+  it("escribe con log y write", () => {
+    expect(salida('write("a ")\nwrite("b")\nlog()\nlog(1, 2.5, true, nil)')).toEqual(["a b", "1 2.5 true nil"]);
   });
 
   it("interpola expresiones en strings", () => {
-    expect(salida('let f = "lima"\nprintln("{f.upper()} {2 + 3}")')).toEqual(["LIMA 5"]);
+    expect(salida('let f = "lima"\nlog("{f.upper()} {2 + 3}")')).toEqual(["LIMA 5"]);
   });
 
   it("protege las constantes declaradas con let", () => {
@@ -87,7 +92,7 @@ describe("evaluador", () => {
         _ => "F",
       }
     }
-    println(nota(95), nota(85), nota(1), nota(-3), nota(40))`;
+    log(nota(95), nota(85), nota(1), nota(-3), nota(40))`;
     expect(salida(codigo)).toEqual(["A B casi cero negativo F"]);
   });
 
@@ -98,7 +103,7 @@ describe("evaluador", () => {
     }
     let c = contador()
     c()
-    println(c(), c())`;
+    log(c(), c())`;
     expect(salida(codigo)).toEqual(["2 3"]);
   });
 
@@ -113,25 +118,25 @@ describe("evaluador", () => {
     }
     let m = Mandarina("clementina")
     m.peso = 2
-    println(m.describe(), type_of(m))`;
+    log(m.describe(), type_of(m))`;
     expect(salida(codigo)).toEqual(["Mandarina: clementina de 2 kg Mandarina"]);
   });
 
   it("atrapa errores con do / catch y lanza con throw", () => {
-    const codigo = `do { throw "mal" } catch e { println(e.message) }
-    do { let x = falta + 1 } catch { println(error.line, error.message) }`;
+    const codigo = `do { throw "mal" } catch e { log(e.message) }
+    do { let x = falta + 1 } catch { log(error.line, error.message) }`;
     expect(salida(codigo)).toEqual(["mal", "2 No existe 'falta' en este ámbito"]);
   });
 
   it("tiene métodos de listas, strings, números y mapas", () => {
     const codigo = `let l = [3, 1, 2, 3]
-    println(l.sorted(), l.unique(), l.sum(), l.map(|x| x * 2).filter(|x| x > 4))
-    println("a,b".split(","), "hola".reversed(), "42".parse() + 1)
-    println(3.7.floor(), 10.clamp(0, 5), 3.times(|i| i))
+    log(l.sorted(), l.unique(), l.sum(), l.map(|x| x * 2).filter(|x| x > 4))
+    log("a,b".split(","), "hola".reversed(), "42".parse() + 1)
+    log(3.7.floor(), 10.clamp(0, 5), 3.times(|i| i))
     let m = { a: 1 }
     m.b = 2
-    println(m.keys(), m.has("b"), m.get("z", 0))
-    println(["bb", "a", "ccc"].sorted_by_key(|s| s.len()))`;
+    log(m.keys(), m.has("b"), m.get("z", 0))
+    log(["bb", "a", "ccc"].sorted_by_key(|s| s.len()))`;
     expect(salida(codigo)).toEqual([
       "[1, 2, 3, 3] [3, 1, 2] 9 [6, 6]",
       '["a", "b"] aloh 43',
@@ -142,11 +147,11 @@ describe("evaluador", () => {
   });
 
   it("compara listas y mapas por contenido", () => {
-    expect(salida("println([1, [2]] == [1, [2]], { a: 1 } == { a: 1 }, { a: 1 } == { a: 2 })")).toEqual(["true true false"]);
+    expect(salida("log([1, [2]] == [1, [2]], { a: 1 } == { a: 1 }, { a: 1 } == { a: 2 })")).toEqual(["true true false"]);
   });
 
   it("convierte a JSON y de vuelta", () => {
-    expect(salida(`let v = from_json('{"a": [1, 2], "b": null}')\nprintln(v.a, v.b, to_json(v))`)).toEqual(['[1, 2] nil {"a":[1,2],"b":null}']);
+    expect(salida(`let v = from_json('{"a": [1, 2], "b": null}')\nlog(v.a, v.b, to_json(v))`)).toEqual(['[1, 2] nil {"a":[1,2],"b":null}']);
   });
 
   it("devuelve el valor de la última instrucción", () => {
@@ -156,7 +161,7 @@ describe("evaluador", () => {
 
 describe("errores en español", () => {
   it("indica la línea de los errores de ejecución", () => {
-    expect(error("let x = 1\nprintln(x.nada())")).toBe("Línea 2: Int no tiene un método llamado 'nada'");
+    expect(error("let x = 1\nlog(x.nada())")).toBe("Línea 2: Int no tiene un método llamado 'nada'");
   });
 
   it("detiene ciclos infinitos con el límite de pasos", () => {
@@ -168,12 +173,12 @@ describe("errores en español", () => {
   });
 
   it("explica la división entre cero", () => {
-    expect(error("println(1 / 0)")).toBe("Línea 1: División entre cero");
+    expect(error("log(1 / 0)")).toBe("Línea 1: División entre cero");
   });
 
   it("run() lanza TngError con el mensaje completo", () => {
     const tng = new Tangerine();
-    try { tng.run("println(nada)", { file: "app.tng" }); }
+    try { tng.run("log(nada)", { file: "app.tng" }); }
     catch (e) {
       expect(e).toBeInstanceOf(TngError);
       expect(tng.message(e)).toBe("app.tng, línea 1: No existe 'nada' en este ámbito");

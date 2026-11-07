@@ -10,15 +10,15 @@ export let topics = [
     paragraphs: [
       'Tangerine es un micro framework con una sintaxis parecida a Swift y Angular: componentes con `@Component`, `@State`, `@Input` y `@Output`, la vista escrita como en SwiftUI, `match`, rangos, closures y retorno implícito. Cada componente es un Web Component que funciona en Angular, React, Vue o HTML.',
       'Cada ejemplo de esta guía muestra su salida real, calculada en tu navegador al abrir la página. Con el botón de cada bloque lo llevas al playground para modificarlo.',
-      '`println` escribe uno o varios valores separados por espacios y termina la línea. `print` escribe sin terminarla. El punto y coma al final es opcional.',
+      '`log` escribe uno o varios valores separados por espacios y termina la línea. `write` escribe sin terminarla. El punto y coma al final es opcional.',
       'La guía empieza por el lenguaje: variables, funciones, listas y clases. Después llegan los componentes, que es lo que usarás para armar páginas y apps.',
     ],
-    code: 'println("Hello, world!")
-println("Tangerine", 3.0, true)
+    code: 'log("Hello, world!")
+log("Tangerine", 3.0, true)
 
-print("Same ")
-print("line")
-println()
+write("Same ")
+write("line")
+log()
 
 // This is a comment',
     tip: 'Los comentarios de una línea empiezan con `//`. Para comentarios largos usa `/*` y `*/`.',
@@ -35,15 +35,15 @@ println()
     code: 'let name = "Tangerine"
 var count: Int = 3
 count += 2
-println(name, count)
+log(name, count)
 
 let (x, y) = (10, 20)
-println(x + y)
+log(x + y)
 
 do {
   name = "Lime"
 } catch e {
-  println(e.message)
+  log(e.message)
 }',
   },
   {
@@ -53,10 +53,10 @@ do {
     paragraphs: [
       'Cada valor tiene un tipo y `type_of` te dice cuál es. Los números enteros son `Int` y los que tienen decimales son `Float`. `nil` representa la ausencia de un valor.',
     ],
-    code: 'println(type_of(42), type_of(3.14))
-println(type_of("hi"), type_of(true), type_of(nil))
-println(type_of([1, 2, 3]), type_of({ kg: 2 }))
-println(type_of(|x| x * 2))',
+    code: 'log(type_of(42), type_of(3.14))
+log(type_of("hi"), type_of(true), type_of(nil))
+log(type_of([1, 2, 3]), type_of({ kg: 2 }))
+log(type_of(|x| x * 2))',
     table: {
       columns: ["Tipo", "Ejemplos"],
       rows: [
@@ -81,18 +81,18 @@ println(type_of(|x| x * 2))',
       'Para comparar usa `==`, `!=`, `<`, `>`, `<=` y `>=`. Las listas se comparan por su contenido. Los lógicos son `&&`, `||` y `!`.',
       '`a ?? b` da `b` solo cuando `a` es `nil`. `0..5` crea el rango del 0 al 4 y `0..=5` incluye el 5.',
     ],
-    code: 'println(7 % 3, 2 ** 10, 10 / 4)
-println(10 > 3 && "a" < "b", !(1 > 2))
-println([1, 2] == [1, 2])
+    code: 'log(7 % 3, 2 ** 10, 10 / 4)
+log(10 > 3 && "a" < "b", !(1 > 2))
+log([1, 2] == [1, 2])
 
 let nickname = nil
-println(nickname ?? "no nickname")
-println(0..5, 1..=3)
+log(nickname ?? "no nickname")
+log(0..5, 1..=3)
 
 var total = 100
 total += 50
 total *= 2
-println(total)',
+log(total)',
     tip: 'En Tangerine, solo `false` y `nil` cuentan como falsos en una condición. El `0` y el texto vacío `""` son verdaderos.',
   },
   {
@@ -105,14 +105,14 @@ println(total)',
     ],
     code: 'let fruit = "mandarin"
 let kilos = 2.5
-println("I bought {kilos} kg of {fruit}")
-println("Shouting: {fruit.upper()}!")
-println(\'Raw: {fruit}\')
+log("I bought {kilos} kg of {fruit}")
+log("Shouting: {fruit.upper()}!")
+log(\'Raw: {fruit}\')
 
-println(fruit.len(), fruit.slice(0, 3), fruit.capitalize())
-println("lime,lemon,grapefruit".split(","))
-println("42".parse() + 1, "ha" * 3)
-println(fruit.replace("a", "o"), fruit.reversed())',
+log(fruit.len(), fruit.slice(0, 3), fruit.capitalize())
+log("lime,lemon,grapefruit".split(","))
+log("42".parse() + 1, "ha" * 3)
+log(fruit.replace("a", "o"), fruit.reversed())',
     table: {
       columns: ["Método", "Qué hace"],
       rows: [
@@ -140,15 +140,15 @@ println(fruit.replace("a", "o"), fruit.reversed())',
     code: 'let temperature = 31
 
 if temperature > 30 {
-  println("Hot")
+  log("Hot")
 } else if temperature > 18 {
-  println("Nice")
+  log("Nice")
 } else {
-  println("Cold")
+  log("Cold")
 }
 
 let drink = if temperature > 25 { "lemonade" } else { "tea" }
-println("Today: {drink}")',
+log("Today: {drink}")',
   },
   {
     id: "match",
@@ -169,7 +169,7 @@ println("Today: {drink}")',
   }
 }
 
-println(grade(95), grade(84), grade(40), grade(-3))
+log(grade(95), grade(84), grade(40), grade(-3))
 
 fn kind(fruit) {
   match fruit {
@@ -178,7 +178,7 @@ fn kind(fruit) {
     _ => "unknown",
   }
 }
-println(kind("lime"), kind("orange"), kind("kiwi"))',
+log(kind("lime"), kind("orange"), kind("kiwi"))',
   },
   {
     id: "bucles",
@@ -189,16 +189,16 @@ println(kind("lime"), kind("orange"), kind("kiwi"))',
       '`while` repite mientras la condición sea verdadera. `loop` repite para siempre, hasta que lo detengas con `break`. `continue` salta a la siguiente vuelta.',
     ],
     code: 'for i in 1..=3 {
-  print(i, "")
+  write(i, "")
 }
-println()
+log()
 
 for (i, fruit) in ["lime", "lemon", "mandarin"].enumerate() {
-  println("{i}: {fruit}")
+  log("{i}: {fruit}")
 }
 
 for (key, value) in { kg: 2, price: 3000 } {
-  println(key, "=", value)
+  log(key, "=", value)
 }
 
 var n = 1
@@ -206,7 +206,7 @@ loop {
   n *= 3
   if n > 100 { break }
 }
-println(n)',
+log(n)',
   },
   {
     id: "funciones",
@@ -233,9 +233,9 @@ fn first_even(numbers) {
   nil
 }
 
-println(square(12))
-println(greet("Ana"), greet("Luis", "Hey"))
-println(first_even([3, 7, 8, 10]))',
+log(square(12))
+log(greet("Ana"), greet("Luis", "Hey"))
+log(first_even([3, 7, 8, 10]))',
   },
   {
     id: "closures",
@@ -247,12 +247,12 @@ println(first_even([3, 7, 8, 10]))',
     ],
     code: 'let double = |x| x * 2
 let add = |a, b| a + b
-println(double(21), add(2, 3))
+log(double(21), add(2, 3))
 
 let prices = [1200, 800, 3500, 450]
-println(prices.map(|p| p * 2))
-println(prices.filter(|p| p > 1000))
-println(prices.fold(0, |total, p| total + p))
+log(prices.map(|p| p * 2))
+log(prices.filter(|p| p > 1000))
+log(prices.fold(0, |total, p| total + p))
 
 fn counter() {
   var count = 0
@@ -264,7 +264,7 @@ fn counter() {
 let next = counter()
 next()
 next()
-println("count:", next())',
+log("count:", next())',
   },
   {
     id: "listas",
@@ -276,15 +276,15 @@ println("count:", next())',
     ],
     code: 'var fruits = ["lime", "mandarin", "lemon"]
 fruits.push("grapefruit")
-println(fruits[0], fruits[-1], fruits.len())
-println(fruits.sorted())
-println(fruits.contains("lime"), fruits.index_of("lemon"))
-println(fruits.join(" + "))
+log(fruits[0], fruits[-1], fruits.len())
+log(fruits.sorted())
+log(fruits.contains("lime"), fruits.index_of("lemon"))
+log(fruits.join(" + "))
 
 let evens = (1..=10)
   .filter(|n| n.is_even())
   .map(|n| n * n)
-println(evens, evens.sum())',
+log(evens, evens.sum())',
     table: {
       columns: ["Método", "Qué hace"],
       rows: [
@@ -320,11 +320,11 @@ let product = {
 product.price -= 200
 product["stock"] = 40
 
-println(product.name, product.price)
-println(product.origin?.country ?? "unknown origin")
-println(product.keys())
-println(product.has("stock"))
-println(product)',
+log(product.name, product.price)
+log(product.origin?.country ?? "unknown origin")
+log(product.keys())
+log(product.has("stock"))
+log(product)',
     table: {
       columns: ["Método", "Qué hace"],
       rows: [
@@ -371,9 +371,9 @@ class Mandarin : Fruit {
 }
 
 let m = Mandarin(3200)
-println(m.describe())
-println(type_of(m))
-println(m)',
+log(m.describe())
+log(type_of(m))
+log(m)',
     tip: 'Si un método devuelve `self`, puedes encadenar llamadas: `basket.add(a).add(b)`. También puedes escribir `struct` en vez de `class`; funcionan igual. Un `struct` con `view { }` es un componente.',
   },
   {
@@ -392,16 +392,16 @@ println(m)',
 }
 
 do {
-  println(split_bill(12, 4))
-  println(split_bill(12, 0))
+  log(split_bill(12, 4))
+  log(split_bill(12, 0))
 } catch e {
-  println("Error:", e.message)
+  log("Error:", e.message)
 }
 
 do {
   let x = missing + 1
 } catch {
-  println("Line {error.line}: {error.message}")
+  log("Line {error.line}: {error.message}")
 }',
   },
   {
@@ -435,9 +435,9 @@ struct Contador {
 
 let c = Contador()
 c.paso = 5
-c.cambio.listen(|v| println("cambio: {v}"))
+c.cambio.listen(|v| log("cambio: {v}"))
 c.sumar()
-println(render_html(c))',
+log(render_html(c))',
     runnable: true,
     table: {
       columns: ["Qué", "Para qué"],
@@ -498,7 +498,7 @@ println(render_html(c))',
 let cantidad = state(2)
 let total = computed(|| precio.get() * cantidad.get())
 
-effect(|| println("Total: {total}"))
+effect(|| log("Total: {total}"))
 
 cantidad.set(3)
 precio.update(|p| p + 5)',
@@ -539,8 +539,8 @@ export class Canasta {
 import { precio_final, Canasta as Cesta } from "./fruta.tng"
 import fruta from "./fruta"
 
-println(precio_final(1000), fruta.IVA)
-println(Cesta().add("lime").items)',
+log(precio_final(1000), fruta.IVA)
+log(Cesta().add("lime").items)',
     runnable: false,
     table: {
       columns: ["Forma", "Qué hace"],
@@ -567,12 +567,12 @@ println(Cesta().add("lime").items)',
 let archivo = args().first() ?? "notas.txt"
 
 if !file_exists(archivo) {
-  println("No existe {archivo}")
+  log("No existe {archivo}")
   exit(1)
 }
 
 let texto = read_file(archivo)
-println("{archivo}: {texto.lines().len()} líneas, {texto.words().len()} palabras")',
+log("{archivo}: {texto.lines().len()} líneas, {texto.words().len()} palabras")',
     runnable: false,
     table: {
       columns: ["Comando", "Qué hace"],
@@ -603,7 +603,7 @@ println("{archivo}: {texto.lines().len()} líneas, {texto.words().len()} palabra
 import { NARANJA, mezclar } from "colores"
 import paleta from "colores/paleta"
 
-println(mezclar(NARANJA, paleta.blanco))',
+log(mezclar(NARANJA, paleta.blanco))',
     runnable: false,
     table: {
       columns: ["Comando", "Qué hace"],
@@ -658,7 +658,7 @@ fn summary(order) {
   }
 }
 
-println(summary(Order("Ana").add("lime").add("mandarin")))',
+log(summary(Order("Ana").add("lime").add("mandarin")))',
     table: {
       columns: ["Palabra", "Para qué sirve"],
       rows: [
@@ -682,18 +682,18 @@ println(summary(Order("Ana").add("lime").add("mandarin")))',
     paragraphs: [
       'Estas funciones están disponibles en cualquier programa. Los números además tienen sus propios métodos, que se llaman con un punto.',
     ],
-    code: 'println(min(4, 9, 2), max([3, 8]), PI.round(4))
-println(3.14159.round(2), 2.9.floor(), (-4).abs(), 81.sqrt())
-println(7.is_odd(), 15.clamp(0, 10), 4.times(|i| i * i))
-println(42.to_string() + "!", type_of(42.5.to_int()))
+    code: 'log(min(4, 9, 2), max([3, 8]), PI.round(4))
+log(3.14159.round(2), 2.9.floor(), (-4).abs(), 81.sqrt())
+log(7.is_odd(), 15.clamp(0, 10), 4.times(|i| i * i))
+log(42.to_string() + "!", type_of(42.5.to_int()))
 
-println(to_json({ kg: 2, tags: ["citrus"] }))
+log(to_json({ kg: 2, tags: ["citrus"] }))
 
 assert(1 + 1 == 2, "math is broken")',
     table: {
       columns: ["Función", "Qué hace"],
       rows: [
-        ['`println(...)`, `print(...)`', 'Escriben valores, con o sin salto de línea.'],
+        ['`log(...)`, `write(...)`', 'Escriben valores, con o sin salto de línea.'],
         ['`type_of(x)`', 'Nombre del tipo del valor.'],
         ['`min(...)`, `max(...)`', 'Menor o mayor valor, de varios números o de una lista.'],
         ['`random()`, `random_int(a, b)`', 'Número al azar entre 0 y 1, o entero entre `a` y `b`.'],
@@ -770,12 +770,12 @@ struct Contador {
 
 let c = Contador()
 c.paso = 2
-c.cambio.listen(|v| println("cambio: {v}"))
+c.cambio.listen(|v| log("cambio: {v}"))
 c.sumar()
-println(render_html(c))' },
+log(render_html(c))' },
   { file: "hello.tng", code: 'let name = "world"
-println("Hello, {name}!")
-println("2 + 3 * 4 = {2 + 3 * 4}")' },
+log("Hello, {name}!")
+log("2 + 3 * 4 = {2 + 3 * 4}")' },
   { file: "fruit_stand.tng", code: 'struct Basket {
   var items = []
 
@@ -794,9 +794,9 @@ let basket = Basket()
   .add("lime", 1, 2800)
 
 for item in basket.items {
-  println("{item.kilos} kg of {item.fruit}")
+  log("{item.kilos} kg of {item.fruit}")
 }
-println("Total: ${basket.total()}")' },
+log("Total: ${basket.total()}")' },
   { file: "grades.tng", code: 'let scores = [95, 72, 88, 41, 100]
 
 for s in scores {
@@ -806,11 +806,11 @@ for s in scores {
     60..80 => "C",
     _ => "F",
   }
-  println("{s.to_string().pad_start(3)} -> {grade}")
+  log("{s.to_string().pad_start(3)} -> {grade}")
 }
 
 let avg = scores.sum() / scores.len()
-println("Average: {avg.round(1)}")' },
+log("Average: {avg.round(1)}")' },
   { file: "inventory.tng", code: 'let stock = {
   mandarin: 40,
   lime: 12,
@@ -819,7 +819,7 @@ println("Average: {avg.round(1)}")' },
 
 for (fruit, qty) in stock {
   let status = if qty == 0 { "sold out" } else { "{qty} left" }
-  println("{fruit}: {status}")
+  log("{fruit}: {status}")
 }' },
   { file: "errors.tng", code: 'fn parse_age(text) -> Int {
   let age = text.parse()
@@ -831,9 +831,9 @@ for (fruit, qty) in stock {
 
 for input in ["21", "twenty", "35"] {
   do {
-    println("Age:", parse_age(input))
+    log("Age:", parse_age(input))
   } catch e {
-    println("Error:", e.message)
+    log("Error:", e.message)
   }
 }' },
   { file: "fizzbuzz.tng", code: 'for i in 1..=15 {
@@ -843,7 +843,7 @@ for input in ["21", "twenty", "35"] {
     n if n % 5 == 0 => "Buzz",
     n => n.to_string(),
   }
-  println(out)
+  log(out)
 }' },
   { file: "counter.tng", code: 'fn make_counter() {
   var count = 0
@@ -855,7 +855,7 @@ for input in ["21", "twenty", "35"] {
 
 let c = make_counter()
 3.times(|_| c.increment())
-println("count:", c.value())' },
+log("count:", c.value())' },
   { file: "fibonacci.tng", code: 'let memo = {}
 
 fn fib(n: Int) -> Int {
@@ -867,7 +867,7 @@ fn fib(n: Int) -> Int {
 }
 
 for n in [10, 30, 70] {
-  println("fib({n}) = {fib(n)}")
+  log("fib({n}) = {fib(n)}")
 }' },
 ]
 

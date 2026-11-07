@@ -3,7 +3,7 @@
 // Al cargar la página ejecuta solo los <script type="text/tangerine">:
 //   <script type="text/tangerine" data-module="util.tng"> ... </script>   registra un módulo
 //   <script type="text/tangerine" src="main.tng"></script>               lo descarga con sus imports
-//   <script type="text/tangerine"> println("hola") </script>             se ejecuta
+//   <script type="text/tangerine"> log("hola") </script>             se ejecuta
 // Para desactivar el arranque automático: <script src="tangerine.js" data-manual></script>
 import { Tangerine, importsOf, parse, resolvePath } from "./index.js";
 import { dom } from "./plugins/dom.js";

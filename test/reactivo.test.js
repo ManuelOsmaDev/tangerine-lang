@@ -17,7 +17,7 @@ describe("estado reactivo", () => {
   });
 
   it("effect se repite cuando cambia lo que lee", () => {
-    const { out } = correr('let n = state(1)\neffect(|| println("n = {n.get()}"))\nn.set(2)\nn.set(2)\nn.set(3)');
+    const { out } = correr('let n = state(1)\neffect(|| log("n = {n.get()}"))\nn.set(2)\nn.set(2)\nn.set(3)');
     expect(out).toEqual(["n = 1", "n = 2", "n = 3"]);
   });
 
@@ -27,19 +27,19 @@ describe("estado reactivo", () => {
   });
 
   it("un estado se puede mostrar e interpolar directamente", () => {
-    const { out } = correr('let nombre = state("Ana")\nprintln("Hola, {nombre}")\nprintln(type_of(nombre))');
+    const { out } = correr('let nombre = state("Ana")\nlog("Hola, {nombre}")\nlog(type_of(nombre))');
     expect(out).toEqual(["Hola, Ana", "State"]);
   });
 
   it("las listas avisan aunque cambien por dentro", () => {
-    const { out } = correr("let l = state([])\neffect(|| println(l.get().len()))\nl.update(|x| { x.push(1); x })");
+    const { out } = correr("let l = state([])\neffect(|| log(l.get().len()))\nl.update(|x| { x.push(1); x })");
     expect(out).toEqual(["0", "1"]);
   });
 
   it("solo observa lo que leyó la última vez", () => {
     const { out } = correr(
       'let ver = state(true)\nlet a = state("a")\nlet b = state("b")\n' +
-        'effect(|| println(if ver.get() { a.get() } else { b.get() }))\n' +
+        'effect(|| log(if ver.get() { a.get() } else { b.get() }))\n' +
         'ver.set(false)\na.set("A")\nb.set("B")'
     );
     expect(out).toEqual(["a", "b", "B"]);

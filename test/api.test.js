@@ -7,8 +7,8 @@ describe("instancias", () => {
     const a = [], b = [];
     const ta = new Tangerine({ output: (l) => a.push(l) });
     const tb = new Tangerine({ output: (l) => b.push(l) });
-    ta.run('println("A")');
-    tb.run('println("B")');
+    ta.run('log("A")');
+    tb.run('log("B")');
     expect([a, b]).toEqual([["A"], ["B"]]);
   });
 
@@ -18,12 +18,12 @@ describe("instancias", () => {
       output: (l) => fuera.push(l),
       natives: { sandbox: (src) => Tangerine.runCode(src).output },
     });
-    tng.run('print("antes ")\nlet r = sandbox("println(1)\\nprintln(2)")\nprintln(r)');
+    tng.run('write("antes ")\nlet r = sandbox("log(1)\\nlog(2)")\nlog(r)');
     expect(fuera).toEqual(["antes [\"1\", \"2\"]"]);
   });
 
   it("runCode no lanza y devuelve la salida parcial", () => {
-    const r = Tangerine.runCode('println("ok")\nprintln(1 + nil)');
+    const r = Tangerine.runCode('log("ok")\nlog(1 + nil)');
     expect(r.output).toEqual(["ok"]);
     expect(r.error).toMatch(/No se puede sumar Int con Nil/);
   });
@@ -69,13 +69,13 @@ describe("nativas y plugins", () => {
   });
 
   it("globals() lista las funciones disponibles", () => {
-    expect(new Tangerine().globals()).toEqual(expect.arrayContaining(["println", "to_json", "PI"]));
+    expect(new Tangerine().globals()).toEqual(expect.arrayContaining(["log", "write", "to_json", "PI"]));
   });
 });
 
 describe("módulos", () => {
   const modules = {
-    "mate.tng": "export fn doble(x) { x * 2 }\nexport let IVA = 0.19\nlet secreto = 1\nprintln(\"cargando mate\")",
+    "mate.tng": "export fn doble(x) { x * 2 }\nexport let IVA = 0.19\nlet secreto = 1\nlog(\"cargando mate\")",
     "util/texto.tng": 'import { doble } from "../mate.tng"\nexport fn grito(s) { s.upper() + "!" * doble(1) }',
     "a.tng": 'import { b } from "./b.tng"\nexport let a = 1',
     "b.tng": 'import { a } from "./a.tng"\nexport let b = 2',
@@ -87,7 +87,7 @@ describe("módulos", () => {
     tng.run(`import { doble, IVA as iva } from "./mate.tng"
 import mate from "./mate"
 import { grito } from "./util/texto"
-println(doble(4), iva, mate.doble(1), mate.secreto, grito("hola"))`);
+log(doble(4), iva, mate.doble(1), mate.secreto, grito("hola"))`);
     expect(out).toEqual(["cargando mate", "8 0.19 2 nil HOLA!!"]);
   });
 
@@ -146,10 +146,10 @@ describe("paquete", () => {
 
   it("los bundles de dist se pueden cargar", async () => {
     const esm = await import("../dist/tangerine.mjs");
-    expect(esm.Tangerine.runCode("println(1 + 1)").output).toEqual(["2"]);
+    expect(esm.Tangerine.runCode("log(1 + 1)").output).toEqual(["2"]);
     const { createRequire } = await import("node:module");
     const cjs = createRequire(import.meta.url)("../dist/tangerine.cjs");
-    expect(cjs.runCode("println(3)").output).toEqual(["3"]);
+    expect(cjs.runCode("log(3)").output).toEqual(["3"]);
     expect(typeof cjs.Tangerine).toBe("function");
   });
 });

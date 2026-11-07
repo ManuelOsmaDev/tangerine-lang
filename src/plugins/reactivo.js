@@ -4,7 +4,7 @@
 //   cuenta.get()  cuenta.set(5)        leer y cambiar
 //   cuenta.update(|n| n + 1)           cambiar a partir del valor anterior
 //   let doble = computed(|| cuenta.get() * 2)   un valor que se calcula solo
-//   effect(|| println(cuenta.get()))   se repite cada vez que cambia lo que lee
+//   effect(|| log(cuenta.get()))   se repite cada vez que cambia lo que lee
 //
 // El plugin "dom" usa esto para que el texto, las clases y los atributos se actualicen solos.
 

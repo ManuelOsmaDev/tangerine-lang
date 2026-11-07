@@ -691,8 +691,8 @@ export function createInterpreter(host) {
 
   // ── Funciones globales ──
   const BUILTINS = {
-    println: (...a) => { OUT(BUFFER + a.map((x) => show(x)).join(" ")); BUFFER = ""; },
-    print: (...a) => { BUFFER += a.map((x) => show(x)).join(" "); },
+    log: (...a) => { OUT(BUFFER + a.map((x) => show(x)).join(" ")); BUFFER = ""; },
+    write: (...a) => { BUFFER += a.map((x) => show(x)).join(" "); },
     type_of: (x) => typeOf(x),
     assert: (cond, msg) => {
       if (!truthy(cond)) throw new Thrown(makeMap({ message: msg == null ? "La afirmación falló" : show(msg) }));

@@ -41,12 +41,12 @@ describe("componentes", () => {
   });
 
   it("@State avisa a los effect", () => {
-    const { out } = correr(CONTADOR + 'let c = Contador()\neffect(|| println("cuenta {c.cuenta}"))\nc.sumar()\nc.sumar()');
+    const { out } = correr(CONTADOR + 'let c = Contador()\neffect(|| log("cuenta {c.cuenta}"))\nc.sumar()\nc.sumar()');
     expect(out).toEqual(["cuenta 0", "cuenta 1", "cuenta 2"]);
   });
 
   it("@Output avisa a quien escucha", () => {
-    const { out } = correr(CONTADOR + 'let c = Contador()\nc.cambio.listen(|v| println("cambió a {v}"))\nc.sumar()');
+    const { out } = correr(CONTADOR + 'let c = Contador()\nc.cambio.listen(|v| log("cambió a {v}"))\nc.sumar()');
     expect(out).toEqual(["cambió a 1"]);
   });
 

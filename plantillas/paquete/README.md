@@ -10,7 +10,7 @@ tangerine add {{nombre}}
 
 ```rust
 import { saludar } from "{{nombre}}"
-println(saludar("Ana"))
+log(saludar("Ana"))
 ```
 
 ## Publicarlo

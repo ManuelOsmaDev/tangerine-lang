@@ -12,6 +12,7 @@
 - Dentro de un struct, los campos y métodos se usan sin `self.`, como en Swift.
 
 ### Cambia
+- **`log` y `write` reemplazan a `println` y `print`.** `log(...)` escribe y termina la línea; `write(...)` escribe sin terminarla. Si usas el nombre viejo, el error te dice cuál usar.
 - La plantilla web usa componentes.
 - Un campo de un struct ahora tapa a una variable global con el mismo nombre dentro de sus métodos. Si dependías de eso, usa otro nombre.
 

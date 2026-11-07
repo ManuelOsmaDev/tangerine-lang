@@ -26,7 +26,7 @@ describe("CLI", () => {
   it("ejecuta archivos con imports, argumentos y archivos del disco", () => {
     fs.writeFileSync(path.join(tmp, "util.tng"), 'export fn saludo(n) { "Hola, {n}" }');
     fs.writeFileSync(path.join(tmp, "datos.txt"), "uno dos\ntres");
-    fs.writeFileSync(path.join(tmp, "main.tng"), 'import { saludo } from "./util"\nprintln(saludo(args()[0]))\nprintln(read_file("datos.txt").words().len())');
+    fs.writeFileSync(path.join(tmp, "main.tng"), 'import { saludo } from "./util"\nlog(saludo(args()[0]))\nlog(read_file("datos.txt").words().len())');
     const r = tangerine(["main.tng", "Ana"], { cwd: tmp });
     expect(r.stderr).toBe("");
     expect(r.stdout).toBe("Hola, Ana\n3\n");
@@ -40,7 +40,7 @@ describe("CLI", () => {
   });
 
   it("check revisa la sintaxis sin ejecutar", () => {
-    fs.writeFileSync(path.join(tmp, "bien.tng"), 'println("no se ejecuta")');
+    fs.writeFileSync(path.join(tmp, "bien.tng"), 'log("no se ejecuta")');
     const r = tangerine(["check", "bien.tng"], { cwd: tmp });
     expect(r.status).toBe(0);
     expect(r.stdout).toContain("✓ bien.tng");

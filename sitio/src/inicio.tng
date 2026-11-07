@@ -6,7 +6,7 @@ import { make, link, paint_output } from "./ui.tng"
 import { topics, samples, features } from "./contenido.tng"
 
 let engine_sample = 'let juice = 2 + 3 * 4
-println(juice)'
+log(juice)'
 
 export fn build_home(home) {
   let page_lines = source().lines().len()

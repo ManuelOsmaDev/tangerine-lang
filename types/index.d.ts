@@ -13,7 +13,7 @@ export interface Plugin {
 export type PluginLike = Plugin | ((tng: Tangerine) => void);
 
 export interface TangerineOptions {
-  /** Recibe cada línea que escribe println. Por defecto console.log. */
+  /** Recibe cada línea que escribe log. Por defecto console.log. */
   output?: (line: string) => void;
   /** Máximo de pasos por ejecución. 0 o ausente = sin límite. */
   stepLimit?: number;

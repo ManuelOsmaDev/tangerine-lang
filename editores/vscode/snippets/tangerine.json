@@ -7,8 +7,8 @@
   "If else": { "prefix": "ife", "body": ["if ${1:condicion} {", "\t$2", "} else {", "\t$0", "}"] },
   "For": { "prefix": "for", "body": ["for ${1:x} in ${2:lista} {", "\t$0", "}"] },
   "For enumerate": { "prefix": "fore", "body": ["for (${1:i}, ${2:x}) in ${3:lista}.enumerate() {", "\t$0", "}"] },
-  "Do catch": { "prefix": "do", "body": ["do {", "\t$1", "} catch ${2:e} {", "\tprintln(${2:e}.message)", "}"] },
+  "Do catch": { "prefix": "do", "body": ["do {", "\t$1", "} catch ${2:e} {", "\tlog(${2:e}.message)", "}"] },
   "Import": { "prefix": "import", "body": ["import { ${2:nombre} } from \"${1:./modulo}\""] },
-  "Println": { "prefix": "pl", "body": ["println(${0})"] },
+  "Log": { "prefix": "log", "body": ["log(${0})"] },
   "Componente de React": { "prefix": "comp", "body": ["export fn ${1:Componente}(props) {", "\tlet (${2:valor}, set_${2:valor}) = use_state(${3:nil})", "", "\th(\"${4:div}\", { class: \"${5:clase}\" },", "\t\t$0", "\t)", "}"] }
 }
