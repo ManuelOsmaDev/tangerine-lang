@@ -1,5 +1,10 @@
 # Cambios
 
+## 5.0.0
+
+- **`log` y `write` reemplazan a `println` y `print`.** `log(...)` escribe y termina la línea; `write(...)` escribe sin terminarla. Si usas el nombre viejo, el error te dice cuál usar: `No existe 'println' en este ámbito. ¿Quisiste decir 'log'?`
+- Para actualizar un proyecto, cambia `println(` por `log(` y `print(` por `write(`.
+
 ## 4.0.0
 
 ### Nuevo
@@ -12,7 +17,6 @@
 - Dentro de un struct, los campos y métodos se usan sin `self.`, como en Swift.
 
 ### Cambia
-- **`log` y `write` reemplazan a `println` y `print`.** `log(...)` escribe y termina la línea; `write(...)` escribe sin terminarla. Si usas el nombre viejo, el error te dice cuál usar.
 - La plantilla web usa componentes.
 - Un campo de un struct ahora tapa a una variable global con el mismo nombre dentro de sus métodos. Si dependías de eso, usa otro nombre.
 
