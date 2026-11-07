@@ -90,7 +90,7 @@
     },
     "calls": {
       "patterns": [
-        { "name": "support.function.builtin.tangerine", "match": "\\b(state|computed|effect|bind|render|is_state|println|print|type_of|assert|min|max|random|random_int|to_json|from_json|read_file|write_file|file_exists|list_dir|args|env|exit|h|fragment|use_state|use_effect|use_memo|use_ref|query|query_all|el|append|on|attr|set_text|toggle_class)(?=\\s*\\()" },
+        { "name": "support.function.builtin.tangerine", "match": "\\b(mount|render_html|state|computed|effect|bind|render|is_state|println|print|type_of|assert|min|max|random|random_int|to_json|from_json|read_file|write_file|file_exists|list_dir|args|env|exit|h|fragment|use_state|use_effect|use_memo|use_ref|query|query_all|el|append|on|attr|set_text|toggle_class)(?=\\s*\\()" },
         { "name": "entity.name.function.call.tangerine", "match": "\\b[a-z_\\u00C0-\\u024F][\\w\\u00C0-\\u024F]*(?=\\s*\\()" }
       ]
     },

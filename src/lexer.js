@@ -9,7 +9,7 @@ export const KEYWORDS = new Set([
 
 const OPS3 = new Set(["..="]);
 const OPS2 = new Set(["==", "!=", "<=", ">=", "&&", "||", "=>", "->", "**", "??", "?.", "..", "+=", "-=", "*=", "/="]);
-const OPS1 = new Set("+-*/%<>=!(){}[],;.:?|");
+const OPS1 = new Set("+-*/%<>=!(){}[],;.:?|@$");
 const esc = (e) => (e === "n" ? "\n" : e === "t" ? "\t" : e === "r" ? "\r" : e === "0" ? "\0" : e);
 
 const isDigit = (c) => c >= "0" && c <= "9";

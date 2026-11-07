@@ -14,12 +14,20 @@ export class Env {
     if (constant) (this.consts || (this.consts = new Set())).add(n);
     else if (this.consts) this.consts.delete(n);
   }
+  // Dentro de un método, los campos de self se pueden usar sin self. (como en Swift).
   has(n) {
-    for (let e = this; e; e = e.parent) if (e.vars.has(n)) return true;
+    for (let e = this; e; e = e.parent) if (e.vars.has(n) || (e.inst && (n in e.inst.fields || e.inst.cls.findMethod(n)))) return true;
     return false;
   }
   get(n, L) {
-    for (let e = this; e; e = e.parent) if (e.vars.has(n)) return e.vars.get(n);
+    for (let e = this; e; e = e.parent) {
+      if (e.vars.has(n)) return e.vars.get(n);
+      if (e.inst) {
+        if (n in e.inst.fields) return e.inst.fields[n];
+        const m = e.inst.cls.findMethod(n);
+        if (m) return m.bind(e.inst);
+      }
+    }
     if (n === "self") throw new TngError("self solo existe dentro de un método", L);
     if (n === "super") throw new TngError("super solo existe dentro de una clase con padre", L);
     throw new TngError(`No existe '${n}' en este ámbito.${quisiste(n, this.names())}`.replace(/\.$/, ""), L);
@@ -27,7 +35,13 @@ export class Env {
   /** Todos los nombres visibles desde este ámbito. */
   names() {
     const out = new Set();
-    for (let e = this; e; e = e.parent) for (const k of e.vars.keys()) out.add(k);
+    for (let e = this; e; e = e.parent) {
+      for (const k of e.vars.keys()) out.add(k);
+      if (e.inst) {
+        for (const k of Object.keys(e.inst.fields)) out.add(k);
+        for (let c = e.inst.cls; c; c = c.parent) for (const k of c.methods.keys()) out.add(k);
+      }
+    }
     return out;
   }
   set(n, v, L) {
@@ -38,6 +52,7 @@ export class Env {
         e.vars.set(n, v);
         return;
       }
+      if (e.inst && n in e.inst.fields) { e.inst.fields[n] = v; return; }
     }
     const s = quisiste(n, this.names());
     throw new TngError(s ? `No existe '${n}' en este ámbito.${s}` : `No existe '${n}' en este ámbito. Declárala primero con var`, L);
@@ -57,6 +72,7 @@ export class Fn {
   bind(inst) {
     const e = new Env(this.env);
     e.define("self", inst, true);
+    e.inst = inst;
     return new Fn(this.decl, e, this.isInit);
   }
 }
@@ -80,6 +96,23 @@ export class Instance {
     this.fields = Object.create(null);
   }
 }
+
+/** Un elemento de un view { }: etiqueta, clases, atributos, eventos e hijos. Aún no es DOM. */
+export class VNode {
+  constructor(tag) {
+    this.tag = tag; // null = un grupo de hijos sin etiqueta
+    this.classes = [];
+    this.attrs = Object.create(null);
+    this.on = Object.create(null);
+    this.bind = null;
+    this.children = [];
+  }
+}
+
+/** Marca de las uniones de dos sentidos ($nombre). */
+export const BINDING = Symbol("tangerine.binding");
+export const makeBinding = (get, set) => ({ [BINDING]: true, get, set });
+export const isBinding = (v) => v !== null && typeof v === "object" && !!v[BINDING];
 
 /** Marca interna de los estados reactivos (state y computed). */
 export const STATE = Symbol("tangerine.state");
@@ -118,6 +151,7 @@ export function typeOf(v) {
   if (v instanceof Class) return "Class";
   if (v instanceof Instance) return v.cls.name;
   if (isState(v)) return "State";
+  if (v instanceof VNode) return "View";
   if (isMap(v)) return "Map";
   return "Element";
 }
@@ -126,6 +160,8 @@ export function typeOf(v) {
 export function show(v, nested, depth) {
   depth = depth || 0;
   if (isState(v)) return show(v[STATE].read(), nested, depth);
+  if (v instanceof VNode) return v.tag ? `<${v.tag}>` : "<view>";
+  if (isBinding(v)) return show(v.get(), nested, depth);
   v = norm(v);
   if (v === null) return "nil";
   if (typeof v === "string") return nested ? JSON.stringify(v) : v;

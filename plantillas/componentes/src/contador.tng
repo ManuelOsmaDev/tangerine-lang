@@ -1,0 +1,22 @@
+// Un componente: se usa como <mi-contador paso="2" titulo="Puntos"></mi-contador>
+// en HTML, Angular, React, Vue o Svelte.
+@Component("mi-contador")
+export struct Contador {
+  @Input var paso = 1          // atributo o propiedad paso
+  @Input var titulo = "Cuenta" // atributo o propiedad titulo
+  @Output var cambio           // evento "cambio" con el valor nuevo en event.detail
+  @State var cuenta = 0        // estado interno: al cambiar, se vuelve a dibujar
+
+  fn sumar() {
+    cuenta += paso
+    cambio.emit(cuenta)
+  }
+
+  view {
+    div(.mi-contador) {
+      span(.titulo) { titulo }
+      strong(.numero) { "{cuenta}" }
+      button(.boton, "+") { sumar() }
+    }
+  }
+}

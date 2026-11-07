@@ -52,6 +52,42 @@ describe("CLI", () => {
     expect(r.stdout).toContain("42");
   });
 
+  it("build --componentes genera un .js que registra los Web Components", async () => {
+    const dir = path.join(tmp, "comps");
+    fs.mkdirSync(path.join(dir, "src"), { recursive: true });
+    fs.writeFileSync(path.join(dir, "tangerine.json"), JSON.stringify({ entry: "src/index.tng", styles: ["src/estilos.css"] }));
+    fs.writeFileSync(path.join(dir, "src", "estilos.css"), ".numero { font-weight: bold }");
+    fs.writeFileSync(path.join(dir, "src", "contador.tng"), `
+@Component("mi-contador")
+export struct Contador {
+  @Input var paso = 1
+  @Output var cambio
+  @State var cuenta = 0
+  view {
+    p(.numero) { "{cuenta}" }
+    button("+") { cuenta += paso; cambio.emit(cuenta) }
+  }
+}`);
+    fs.writeFileSync(path.join(dir, "src", "index.tng"), 'import { Contador } from "./contador"');
+    const b = tangerine(["build", "--componentes"], { cwd: dir });
+    expect(b.stderr).toBe("");
+    expect(b.stdout).toContain("<mi-contador>");
+    const js = fs.readFileSync(path.join(dir, "dist", "componentes.js"), "utf8");
+
+    const page = new JSDOM('<!doctype html><body><mi-contador paso="3"></mi-contador></body>', { runScripts: "dangerously" });
+    const w = page.window;
+    const s = w.document.createElement("script");
+    s.textContent = js;
+    w.document.body.appendChild(s);
+    const el = w.document.querySelector("mi-contador");
+    const vistos = [];
+    el.addEventListener("cambio", (e) => vistos.push(e.detail));
+    el.querySelector("button").click();
+    expect(el.querySelector(".numero").textContent).toBe("3");
+    expect(vistos).toEqual([3]);
+    expect(w.document.querySelector("style[data-tangerine]").textContent).toContain(".numero");
+  });
+
   it("new crea un proyecto y build lo empaqueta en un HTML que funciona", async () => {
     const r = tangerine(["new", "mi-app"], { cwd: tmp });
     expect(r.status).toBe(0);

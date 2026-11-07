@@ -2,35 +2,35 @@
 
 # Tangerine
 
-Tangerine es un micro framework para crear webs y apps con la sintaxis de Rust y Swift: llaves sin paréntesis, `match`, rangos, closures, clases y retorno implícito. Funciona en el navegador y en Node.js, y no tiene dependencias.
+Tangerine es un micro framework para crear webs y apps con una sintaxis parecida a Swift y Angular: componentes con `@Component`, `@State`, `@Input` y `@Output`, y la vista escrita como en SwiftUI. Funciona en el navegador y en Node.js, y no tiene dependencias.
+
+```swift
+@Component("mi-contador")
+struct Contador {
+  @Input var paso = 1
+  @Output var cambio
+  @State var cuenta = 0
+
+  fn sumar() {
+    cuenta += paso
+    cambio.emit(cuenta)
+  }
+
+  view {
+    div(.tarjeta) {
+      p(.numero) { "{cuenta}" }
+      button("+") { sumar() }
+    }
+  }
+}
+```
 
 **Lo que lo hace distinto**
 
+- **Tus componentes funcionan en cualquier proyecto.** Cada `@Component` es un Web Component: `<mi-contador paso="2">` se usa igual en Angular, React, Vue, Svelte o HTML. Así un equipo puede sumar piezas hechas en Tangerine a una app que ya existe (micro-frontends).
+- **Se actualiza solo.** Lo que marcas con `@State` se vuelve a dibujar cuando cambia, sin tocar el DOM a mano y sin que un input pierda el foco.
 - **Errores que enseñan, en español.** Dicen archivo, línea y columna, muestran el rastro de llamadas y sugieren el nombre correcto: `List no tiene un método llamado 'length'. ¿Quisiste decir 'len'?`
-- **Componentes de React en Tangerine.** `tangerine new app --con react` y escribe componentes con hooks en archivos `.tng`.
-- **Una sola herramienta.** `tangerine` crea proyectos (propios, React, Vue, Angular, Swift…), instala herramientas, maneja paquetes y empaqueta tu web en un solo HTML.
-
-```rust
-import { formato_precio } from "./tienda.tng"
-
-struct Canasta {
-  var items = []
-  fn add(fruta, kilos, precio) { self.items.push({ fruta, kilos, precio }); self }
-  fn total() { self.items.fold(0, |s, x| s + x.kilos * x.precio) }
-}
-
-let canasta = Canasta().add("mandarina", 2, 3200).add("limón", 1, 2800)
-
-for item in canasta.items {
-  let etiqueta = match item.kilos {
-    0 => "agotado",
-    1..=2 => "poco",
-    _ => "mucho",
-  }
-  println("{item.fruta}: {etiqueta}")
-}
-println("Total: {formato_precio(canasta.total())}")
-```
+- **Una sola herramienta.** `tangerine` crea proyectos, instala herramientas, maneja paquetes y empaqueta tu web en un solo HTML o tus componentes en un solo `.js`.
 
 **Web oficial, guía y playground:** https://manuelosmadev.github.io/tangerine-lang/
 
@@ -100,9 +100,108 @@ error: app.tng, línea 2, columna 1: Se esperaba ']' pero se encontró 'println'
 
 Fuera del navegador hay funciones para trabajar con el sistema: `read_file`, `write_file`, `file_exists`, `list_dir`, `args()`, `env(nombre)` y `exit(código)`.
 
+## Componentes
+
+Un componente es un `struct` con un `view { }`. Dentro del struct, los campos y métodos se usan sin `self.`, como en Swift.
+
+```swift
+struct Tareas {
+  @State var tareas = []
+  @State var nueva = ""
+
+  fn agregar() {
+    if nueva != "" {
+      tareas = tareas + [nueva]
+      nueva = ""
+    }
+  }
+
+  view {
+    h2 { "Pendientes ({tareas.len()})" }
+    input(.campo, $nueva, { placeholder: "Nueva tarea", on_keydown: |e| { if e.key == "Enter" { agregar() } } })
+    button(.boton, "Agregar") { agregar() }
+
+    if tareas.len() == 0 {
+      p(.vacio) { "No hay tareas" }
+    } else {
+      ul {
+        for t in tareas { li { t } }
+      }
+    }
+  }
+}
+
+mount("#app", Tareas)
+```
+
+| Qué | Para qué |
+| --- | --- |
+| `@State var x = 0` | Estado del componente. Al cambiar, el view se vuelve a dibujar. |
+| `@Input var x = 1` | Dato que llega de afuera: un atributo (`x="2"`) o una propiedad (`el.x = 2`). |
+| `@Output var cambio` | Evento hacia afuera: `cambio.emit(valor)` lanza el evento `cambio` con el valor en `event.detail`. |
+| `@Component("mi-etiqueta")` | Registra el struct como Web Component `<mi-etiqueta>`. La etiqueta lleva un guion. |
+| `view { }` | Lo que se muestra. Cada línea que da un valor se agrega: un elemento, un texto o una lista. |
+| `div(.clase) { hijos }` | Un elemento con clases. Se pueden poner varias: `div(.tarjeta, .grande)`. |
+| `p { "Hola, {nombre}" }` | Texto con valores. |
+| `a({ href: "/x", target: "_blank" }) { "Ir" }` | Atributos en un mapa. `class: if activo { "on" } else { nil }` pone una clase según una condición. |
+| `button("Texto") { acción }` | Un botón: el bloque se ejecuta al hacer clic. |
+| `{ on_input: \|e\| ... }` | Cualquier evento: `on_click`, `on_submit`, `on_keydown`... Si recibe un parámetro, le llegan `key`, `value` y `detail`. |
+| `input($nombre)` | Une un campo con un `@State` en los dos sentidos. También sirve con casillas y `select`. |
+| `if` y `for` | Funcionan igual dentro del view. |
+| `element("otra-etiqueta", { prop: valor })` | Cualquier etiqueta, por ejemplo otro Web Component. |
+| `mount("#app", App)` | Dibuja un struct con view en la página. |
+| `render_html(App())` | El HTML del view como texto: sirve en el servidor y en pruebas. |
+
+Un struct con `view` también se puede usar dentro de otro view: `div { Saludo("Ana") }`.
+
+## Usar tus componentes en Angular, React o Vue
+
+```bash
+tangerine new mis-componentes --con componentes
+cd mis-componentes
+npm install
+npm run build       # genera dist/componentes.js
+```
+
+`dist/componentes.js` trae el intérprete y tus componentes. Cárgalo una vez en tu proyecto y usa la etiqueta:
+
+**HTML**
+
+```html
+<script src="componentes.js"></script>
+<mi-contador paso="2"></mi-contador>
+<script>
+  document.querySelector("mi-contador").addEventListener("cambio", (e) => console.log(e.detail));
+</script>
+```
+
+**Angular**: agrega el archivo a `scripts` en `angular.json` y `CUSTOM_ELEMENTS_SCHEMA` al componente.
+
+```ts
+@Component({
+  selector: "app-root",
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `<mi-contador [paso]="2" (cambio)="total = $event.detail"></mi-contador>`,
+})
+export class AppComponent { total = 0; }
+```
+
+**React**: `import "./componentes.js"` en `main.jsx`.
+
+```jsx
+<mi-contador paso="2" oncambio={(e) => setTotal(e.detail)} />
+```
+
+React 19 conecta `oncambio` solo. En React 18, escucha el evento con un `ref` y `addEventListener("cambio", ...)`.
+
+**Vue**: en `vite.config.js`, `vue({ template: { compilerOptions: { isCustomElement: (t) => t.includes("-") } } })`, y después `<mi-contador :paso="2" @cambio="total = $event.detail" />`.
+
+Los `@Input` reciben atributos de texto (los números y `true`/`false` se convierten solos según el valor inicial) y también propiedades con listas u objetos. Los componentes se dibujan dentro de su etiqueta, sin Shadow DOM, así que los estilos de tu app les llegan.
+
 ## Estado reactivo
 
-Guarda los datos de tu página en un `state`. Cuando el estado cambia, todo lo que lo muestra se actualiza solo: no hay que borrar ni volver a pintar nada a mano.
+Fuera de un componente también puedes guardar datos en un `state`. Cuando el estado cambia, todo lo que lo muestra se actualiza solo: no hay que borrar ni volver a pintar nada a mano.
 
 ```rust
 let cuenta = state(0)
@@ -316,6 +415,7 @@ Los valores viajan así: los números, strings, booleanos y listas son los de Ja
 | Bucles | `for (i, x) in lista.enumerate() { }`, `while c { }`, `loop { break }` |
 | Funciones | `fn area(r: Float) -> Float { PI * r ** 2 }`, `fn saludar(n, s = "Hola") { }`, `\|x\| x * 2` |
 | Clases | `class Hija : Madre { init(x) { self.x = x } }`, `super.metodo()` |
+| Componentes | `@Component("mi-x") struct X { @State var n = 0; view { p { "{n}" } } }` |
 | Nil seguro | `usuario?.direccion?.ciudad ?? "sin ciudad"` |
 | Errores | `do { throw "falló" } catch e { println(e.message) }` |
 | Módulos | `export fn f() {}`, `import { f as g } from "./util"`, `import util from "./util"` |

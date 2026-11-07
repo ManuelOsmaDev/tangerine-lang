@@ -1,7 +1,7 @@
 {
   "name": "tangerine-lang",
-  "version": "3.2.0",
-  "description": "Tangerine: un micro framework con la sintaxis de Rust y Swift para crear webs y apps, en el navegador y Node.js",
+  "version": "4.0.0",
+  "description": "Tangerine: micro framework con sintaxis de Swift y Angular. Tus componentes son Web Components que funcionan en Angular, React, Vue o HTML",
   "keywords": [
     "tangerine",
     "framework",
@@ -13,7 +13,10 @@
     "swift",
     "educacion",
     "react",
-    "vite"
+    "vite",
+    "web-components",
+    "micro-frontends",
+    "components"
   ],
   "license": "JMSO",
   "author": "Manuel Osma",

@@ -5,8 +5,9 @@ import { parser, parse, sx, importsOf } from "./parser.js";
 import { createInterpreter, resolvePath } from "./interprete.js";
 import { show, truthy, makeMap, isMap, typeOf, fromJS, toJS } from "./valores.js";
 import { reactivo } from "./plugins/reactivo.js";
+import { componentes } from "./plugins/componentes.js";
 
-export const VERSION = "3.2.0";
+export const VERSION = "4.0.0";
 
 const globalPlugins = [];
 
@@ -54,16 +55,20 @@ export class Tangerine {
     this.imports = { ...(opciones.imports || {}) };
     this.modules = new Map(Object.entries(opciones.modules || {}).map(([k, v]) => [resolvePath(k, null), v]));
     const self = this;
+    /** Ganchos del intérprete: decoradores de clase (@Component) y aviso al crear una instancia. */
+    this.hooks = { decorators: Object.create(null), onInstance: null };
     this._rt = createInterpreter({
       output: opciones.output || ((l) => console.log(l)),
       get stepLimit() { return self.stepLimit; },
       resolve: opciones.resolve || ((spec, from) => resolveWithMap(spec, from, self.imports)),
       read: (key) => (self.modules.has(key) ? self.modules.get(key) : opciones.read ? opciones.read(key) : null),
       onError: opciones.onError || ((m) => console.error("Tangerine: " + m)),
+      hooks: this.hooks,
     });
     this.stepLimit = opciones.stepLimit || 0;
     this.plugins = [];
     this.use(reactivo());
+    this.use(componentes());
     if (opciones.globalPlugins !== false) for (const p of globalPlugins) this.use(p);
     for (const p of opciones.plugins || []) this.use(p);
     if (opciones.natives) this.defineAll(opciones.natives);

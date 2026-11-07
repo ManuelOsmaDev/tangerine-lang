@@ -19,7 +19,7 @@ export fn build_home(home) {
   make(notice, "span", "aviso-punto", nil)
   make(notice, "span", nil, "Nuevo en 3.1: módulos, paquetes, CLI y componentes de React")
 
-  make(hero_text, "h1", nil, "La elegancia de Rust y Swift, en un micro framework que cabe en una tarde.")
+  make(hero_text, "h1", nil, "La elegancia de Swift y Angular, en un micro framework que cabe en una tarde.")
   make(hero_text, "p", "heroe-lema", "Tangerine tiene pattern matching, closures, clases, rangos, nil seguro y retorno implícito. Su intérprete no usa dependencias y lo puedes leer de principio a fin.")
   let actions = make(hero_text, "div", "acciones", nil)
   link(actions, "boton primario", "Leer la guía", "guia")

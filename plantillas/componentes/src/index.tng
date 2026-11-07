@@ -1,0 +1,2 @@
+// Importa aquí todos los componentes: npm run build los junta en dist/componentes.js.
+import { Contador } from "./contador"

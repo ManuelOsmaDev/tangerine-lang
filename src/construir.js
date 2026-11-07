@@ -140,3 +140,52 @@ export function buildToDisk(config, opciones) {
   fs.writeFileSync(r.out, r.html);
   return r;
 }
+
+/**
+ * Construye un solo archivo JavaScript con el intérprete y los módulos del proyecto.
+ * Al cargarlo se registran los @Component como Web Components, listos para usar
+ * en cualquier página o en un proyecto de Angular, React, Vue o Svelte.
+ * @param {object} config resultado de loadConfig
+ * @returns {{ js: string, out: string, modules: string[], components: string[] }}
+ */
+export function buildComponents(config, salida) {
+  const root = config.root;
+  const imports = {};
+  const modules = collectModules(root, config.entry, imports);
+  if (!fs.existsSync(RUNTIME_FILE))
+    throw new Error("Falta dist/tangerine.global.min.js. Ejecuta `npm run build` en el paquete tangerine-lang.");
+  const read = (f) => fs.readFileSync(path.resolve(root, f), "utf8");
+  const css = config.styles.map((f) => read(f).trim()).join("\n");
+  const fuentes = Object.fromEntries(modules.map((m) => [m.key, m.source]));
+  const entryKey = modules[modules.length - 1].key;
+  const components = [...new Set(modules.flatMap((m) => [...m.source.matchAll(/@Component\(\s*"([^"]+)"/g)].map((x) => x[1])))];
+
+  const js = `/*! Componentes hechos con Tangerine ${VERSION}: ${components.join(", ") || "(sin @Component)"} */
+${fs.readFileSync(RUNTIME_FILE, "utf8").trim()}
+${config.scripts.map((f) => read(f).trim()).join("\n")}
+;(function () {
+  var T = globalThis.Tangerine;
+  var css = ${JSON.stringify(css)};
+  if (css && typeof document !== "undefined") {
+    var s = document.createElement("style");
+    s.setAttribute("data-tangerine", "");
+    s.textContent = css;
+    document.head.appendChild(s);
+  }
+  var tng = new T({ imports: ${JSON.stringify(imports)}, modules: ${JSON.stringify(fuentes)} });
+  T.componentes = tng;
+  try { tng.import(${JSON.stringify(entryKey)}); }
+  catch (e) { console.error("Tangerine: " + (e && e.message)); }
+})();
+`;
+  const out = path.resolve(root, salida || "dist/componentes.js");
+  return { js, out, modules: modules.map((m) => m.key), components };
+}
+
+/** Construye los componentes y escribe el archivo. */
+export function buildComponentsToDisk(config, salida) {
+  const r = buildComponents(config, salida);
+  fs.mkdirSync(path.dirname(r.out), { recursive: true });
+  fs.writeFileSync(r.out, r.js);
+  return r;
+}

@@ -6,7 +6,7 @@ import http from "node:http";
 import readline from "node:readline";
 import { createNodeTangerine, nodeResolve } from "../src/node.js";
 import { parse, show, VERSION, TngError } from "../src/index.js";
-import { loadConfig, buildToDisk } from "../src/construir.js";
+import { loadConfig, buildToDisk, buildComponentsToDisk } from "../src/construir.js";
 import { cmdNew, cmdInstall, cmdDoctor, cmdAdd, cmdRemove, cmdBuscar, cmdVscode } from "../src/herramientas.js";
 
 const color = process.stdout.isTTY && !process.env.NO_COLOR;
@@ -47,6 +47,7 @@ ${negrita("Opciones")}
   -o, --salida <f>   archivo de salida de build
   --entrada <f>      archivo de entrada de build
   --cdn              build carga el intérprete desde jsDelivr en vez de incluirlo
+  --componentes      build genera dist/componentes.js con tus @Component, para Angular o React
   --con <plantilla>  plantilla para new
   --sin-tangerine    en plantillas de Vite, no agrega el plugin de Tangerine
   --si               install no pregunta antes de ejecutar
@@ -70,6 +71,7 @@ function parseArgs(argv) {
     else if (a === "-o" || a === "--salida") flags.salida = next();
     else if (a === "--entrada") flags.entrada = next();
     else if (a === "--cdn") flags.cdn = true;
+    else if (a === "--componentes" || a === "--components") flags.componentes = true;
     else if (a === "--con") flags.con = next().toLowerCase();
     else if (a === "--lista") flags.lista = true;
     else if (a === "--sin-tangerine") flags.sinTangerine = true;
@@ -187,6 +189,17 @@ function buildConfig(flags) {
 
 function cmdBuild(flags) {
   const config = buildConfig(flags);
+  if (flags.componentes) {
+    try {
+      const r = buildComponentsToDisk(config, flags.salida);
+      const kb = (Buffer.byteLength(r.js) / 1024).toFixed(1);
+      console.log(`${verde("✓")} ${path.relative(process.cwd(), r.out)} ${gris(`(${r.components.length ? r.components.map((c) => "<" + c + ">").join(" ") : "sin @Component"}, ${kb} KB)`)}`);
+      if (r.components.length) console.log(gris(`  Cárgalo con <script src="componentes.js"></script> y usa <${r.components[0]}></${r.components[0]}>`));
+    } catch (err) {
+      fail(err.message);
+    }
+    return;
+  }
   try {
     const r = buildToDisk(config);
     const kb = (Buffer.byteLength(r.html) / 1024).toFixed(1);

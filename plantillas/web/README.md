@@ -8,4 +8,4 @@ npm run dev     # http://localhost:3000, se recarga al guardar
 npm run build   # genera dist/index.html, un solo archivo listo para publicar
 ```
 
-El código está en `src/`. `src/main.tng` es la entrada. Usa `state(valor)` para guardar datos: lo que los muestra en la página se actualiza solo cuando cambian. Puedes separar el código en otros archivos con `import { ... } from "./archivo.tng"`.
+El código está en `src/`. `src/main.tng` es la entrada. La página es un `struct` con `view { }`: lo que marques con `@State` se vuelve a dibujar solo cuando cambia. Puedes separar el código en otros archivos con `import { ... } from "./archivo.tng"`.

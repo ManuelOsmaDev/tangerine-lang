@@ -1,5 +1,20 @@
 # Cambios
 
+## 4.0.0
+
+### Nuevo
+- **Componentes al estilo Swift y Angular**: `struct` con `view { }`, `@State`, `@Input`, `@Output` y `@Component("mi-etiqueta")`. Dentro del view, `div(.clase) { }`, `button("+") { acción }`, `if`, `for`, atributos y eventos con `on_click`.
+- **Web Components**: cada `@Component` se registra como etiqueta HTML y funciona en Angular, React, Vue, Svelte o HTML (micro-frontends).
+- `tangerine build --componentes` genera `dist/componentes.js` con el intérprete y tus componentes.
+- Plantilla `tangerine new --con componentes`, con ejemplos para Angular, React y Vue.
+- `$campo` une un input con un `@State` en los dos sentidos, sin perder el foco.
+- `mount("#app", App)` dibuja un componente en la página; `render_html(App())` da su HTML.
+- Dentro de un struct, los campos y métodos se usan sin `self.`, como en Swift.
+
+### Cambia
+- La plantilla web usa componentes.
+- Un campo de un struct ahora tapa a una variable global con el mismo nombre dentro de sus métodos. Si dependías de eso, usa otro nombre.
+
 ## 3.2.0
 
 - **Estado reactivo**: `state`, `computed` y `effect`. Cuando un estado cambia, lo que depende de él se actualiza solo.

@@ -361,6 +361,35 @@ Los literales negativos necesitan paréntesis para llamar métodos: `(-4).abs()`
 
 `el`, `set_text`, `attr`, `toggle_class`, `set_style`, `set_visible` y `set_value` aceptan un `state` o `computed` en lugar del valor y se actualizan solos.
 
+### 5.4 Componentes (siempre disponibles)
+
+```swift
+@Component("mi-contador")          // opcional: lo registra como Web Component <mi-contador>
+struct Contador {
+  @Input var paso = 1               // atributo/propiedad; se convierte al tipo del valor inicial
+  @Output var cambio                // cambio.emit(v) lanza CustomEvent "cambio" con detail = v
+  @State var cuenta = 0             // al cambiar, el view se vuelve a dibujar
+  fn sumar() { cuenta += paso; cambio.emit(cuenta) }   // campos y métodos sin self.
+  view {
+    div(.tarjeta, .grande, { "data-id": 1, on_click: |e| nil }) {
+      p(.numero) { "{cuenta}" }     // cada línea con valor se agrega: VNode, texto o lista
+      button("+") { sumar() }       // en button, el bloque es la acción del clic
+      input($nombre)                // unión de dos sentidos con un campo
+      if cuenta > 0 { span { "sí" } }
+      for x in lista { li { x } }
+      element("otra-etiqueta", { prop: valor })
+    }
+  }
+}
+mount("#app", Contador)             // navegador
+render_html(Contador())             // HTML como texto (Node o navegador)
+```
+
+- Las etiquetas (`div`, `p`, `span`, `button`, `input`, `ul`, `li`, `a`, `h1`...`h6`, `section`, etc.) solo crean elementos dentro de `view { }` y cuando van seguidas de `(` o `{` en la misma línea. Fuera del view son nombres normales.
+- `.nombre-con-guion` funciona como clase. En un mapa, `class: valor` agrega una clase si `valor` no es `nil`/`false`.
+- `tangerine build --componentes` genera `dist/componentes.js` (intérprete + módulos + CSS de `styles`).
+- `@Component("x")` exige una etiqueta en minúsculas con guion y un `view`.
+
 ### 5.3 Estado reactivo (siempre disponible)
 
 | Función | Qué hace |

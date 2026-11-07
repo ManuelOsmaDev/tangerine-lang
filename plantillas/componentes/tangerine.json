@@ -1,0 +1,9 @@
+{
+  "entry": "src/index.tng",
+  "out": "dist/index.html",
+  "title": "{{nombre}}",
+  "lang": "es",
+  "styles": ["src/estilos.css"],
+  "scripts": [],
+  "body": "<main class=\"demo\"><h1>Mis componentes</h1><mi-contador paso=\"1\" titulo=\"Visitas\"></mi-contador></main>"
+}

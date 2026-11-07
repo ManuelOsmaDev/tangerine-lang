@@ -53,6 +53,7 @@ const NOMBRE_VALIDO = /^[A-Za-z0-9._-]+$/;
 export const PLANTILLAS = {
   web: { desc: "Página web hecha 100% en Tangerine (por defecto)", local: "web" },
   react: { desc: "React + Vite con componentes escritos en Tangerine", local: "react" },
+  componentes: { desc: "Web Components para usar en Angular, React, Vue o HTML", local: "componentes" },
   consola: { desc: "Programa de terminal en Tangerine", local: "consola" },
   paquete: { desc: "Paquete de Tangerine para publicar en npm", local: "paquete" },
   vue: { desc: "Vue + Vite (CLI oficial) con soporte para .tng", requiere: "npm", vite: true, cmd: (d) => `npm create vite@latest ${d} -- --template vue` },

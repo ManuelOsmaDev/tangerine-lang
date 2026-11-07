@@ -4,7 +4,7 @@
 import { TngError, Thrown, Return, StepLimit, BREAK, CONTINUE, ubicacion } from "./errores.js";
 import { parse } from "./parser.js";
 import { quisiste } from "./sugerencias.js";
-import { Env, Fn, Class, Instance, isMap, makeMap, truthy, norm, equal, typeOf, show, fromJS, toJS } from "./valores.js";
+import { Env, Fn, Class, Instance, isMap, makeMap, truthy, norm, equal, typeOf, show, fromJS, toJS, VNode, makeBinding, isBinding, isState } from "./valores.js";
 
 /** Une una ruta relativa con el archivo que la importa (estilo POSIX). */
 export function resolvePath(spec, from) {
@@ -42,6 +42,8 @@ export function createInterpreter(host) {
   let CURFILE = null; // archivo que se está ejecutando (para el rastro de llamadas)
   const modules = new Map(); // clave -> { state: "loading"|"ready", exports }
   const global = new Env();
+  const hooks = host.hooks || { decorators: Object.create(null), onInstance: null };
+  let VIEW = null; // hijos del elemento que se está armando dentro de un view
 
   let LIMIT = 0; // se copia de host.stepLimit al empezar cada ejecución
   function tick() {
@@ -287,7 +289,28 @@ export function createInterpreter(host) {
   }
 
   // Ejecuta un bloque y devuelve el valor de su última instrucción
+  // Dentro de un view, cada línea que da un valor se agrega como hijo (texto o elemento).
+  function emit(v) {
+    v = norm(v);
+    if (v === null || VIEW === null) return;
+    if (Array.isArray(v)) { for (const x of v) emit(x); return; }
+    if (v instanceof VNode) { if (v.tag === null) VIEW.push(...v.children); else VIEW.push(v); return; }
+    if (v instanceof Instance) {
+      const view = v.cls.findMethod("view");
+      if (view) { emit(call(view.bind(v), [])); return; }
+    }
+    if (typeof v === "boolean") return;
+    VIEW.push(show(v));
+  }
+
   function runBlock(stmts, env) {
+    if (stmts.view) {
+      for (const s of stmts) {
+        if (s.type === "exp") emit(evaluate(s.exp, env));
+        else exec(s, env);
+      }
+      return null;
+    }
     let last = null;
     for (const s of stmts) last = exec(s, env);
     return last;
@@ -332,7 +355,13 @@ export function createInterpreter(host) {
         if (parent) { menv = new Env(env); menv.define("super", parent, true); }
         const ms = new Map();
         for (const m of s.methods) ms.set(m.name, new Fn(m, menv, m.name === "init"));
-        env.define(s.name, new Class(s.name, parent, ms, s.fields, menv), true);
+        const cls = new Class(s.name, parent, ms, s.fields, menv);
+        env.define(s.name, cls, true);
+        for (const d of s.decorators || []) {
+          const h = hooks.decorators[d.name];
+          if (!h) throw new TngError(`No existe el decorador @${d.name}. Para un componente usa @Component("mi-etiqueta")`, d.line);
+          h(cls, d.args.map((a) => evaluate(a, env)), d.line);
+        }
         return null;
       }
       case "assign": assign(s, env); return null;
@@ -422,6 +451,36 @@ export function createInterpreter(host) {
       case "list": return e.items.map((x) => evaluate(x, env));
       case "map": { const o = Object.create(null); for (const [k, v] of e.pairs) o[k] = evaluate(v, env); return o; }
       case "function": return new Fn(e, env);
+      case "bindref": {
+        const n = e.name;
+        if (!env.has(n)) env.get(n, e.line);
+        return makeBinding(() => env.get(n, e.line), (v) => env.set(n, v, e.line));
+      }
+      case "elem": {
+        const node = new VNode(show(evaluate(e.tag, env)));
+        for (const a of e.args) {
+          if (a.type === "cls") { node.classes.push(a.name); continue; }
+          const v = norm(evaluate(a, env));
+          if (v === null || v === false) continue;
+          if (isBinding(v)) node.bind = v;
+          else if (isMap(v) && !isState(v)) {
+            for (const k of Object.keys(v)) {
+              const x = norm(v[k]);
+              if (k === "class") { if (truthy(x)) node.classes.push(show(x)); }
+              else if (k.startsWith("on_")) { if (x !== null) node.on[k.slice(3)] = x; }
+              else node.attrs[k] = x;
+            }
+          } else if (v instanceof VNode) node.children.push(v);
+          else node.children.push(show(v));
+        }
+        if (e.action) node.on.click = evaluate(e.action, env);
+        if (e.content) {
+          const prev = VIEW;
+          VIEW = node.children;
+          try { runBlock(e.content, new Env(env)); } finally { VIEW = prev; }
+        }
+        return node;
+      }
       case "range": return makeRange(evaluate(e.from, env), evaluate(e.to, env), e.inclusive, e.line);
       case "unary": {
         const v = evaluate(e.value, env);
@@ -481,8 +540,10 @@ export function createInterpreter(host) {
       if (!c.fields.length) continue;
       const fenv = new Env(c.env);
       fenv.define("self", inst, true);
+      fenv.inst = inst;
       for (const f of c.fields) inst.fields[f.name] = evaluate(f.value, fenv);
     }
+    if (hooks.onInstance) hooks.onInstance(inst);
     const init = cls.findMethod("init");
     if (init) call(init.bind(inst), args, L);
     else if (args.length) throw new TngError(`${cls.name} no tiene un init que reciba argumentos`, L);
@@ -513,7 +574,12 @@ export function createInterpreter(host) {
           if (v === undefined && defs && defs[i]) v = evaluate(defs[i], local);
           local.define(ps[i], v === undefined ? null : v);
         }
-        result = d.isExpr ? evaluate(d.body, local) : runBlock(d.body, local);
+        if (d.isView) {
+          const root = new VNode(null), prev = VIEW;
+          VIEW = root.children;
+          try { runBlock(d.body, local); } finally { VIEW = prev; }
+          result = root;
+        } else result = d.isExpr ? evaluate(d.body, local) : runBlock(d.body, local);
       } catch (x) {
         if (x instanceof Return) result = x.value;
         else {

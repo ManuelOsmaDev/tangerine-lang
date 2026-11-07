@@ -5,6 +5,14 @@ import { lexer, describe } from "./lexer.js";
 const ASSIGN_OPS = new Set(["=", "+=", "-=", "*=", "/="]);
 const ASSIGNABLE = new Set(["var", "member", "index"]);
 
+// Etiquetas HTML que se pueden escribir directamente dentro de un view { }.
+export const TAGS = new Set((
+  "div span p a button h1 h2 h3 h4 h5 h6 ul ol li img input textarea select option label form " +
+  "section header footer main nav article aside strong em small code pre table thead tbody tr td th " +
+  "br hr figure figcaption details summary video audio canvas i b"
+).split(" "));
+const FIELD_DECORATORS = new Set(["State", "Input", "Output"]);
+
 /**
  * Convierte tokens en un árbol de sintaxis.
  * @param {Array} tokens
@@ -15,6 +23,8 @@ export function parser(tokens, opciones) {
   const file = o.file || null;
   let pos = 0;
   let depth = 0;
+  let inView = 0;   // > 0 dentro de un view { }: las etiquetas HTML crean elementos
+  let noBrace = 0;  // > 0 en la condición de un if/while/for/match: '{' abre el bloque, no un elemento
 
   const peek = (k) => tokens[Math.min(pos + (k || 0), tokens.length - 1)];
   const is = (type) => peek().type === type;
@@ -46,14 +56,44 @@ export function parser(tokens, opciones) {
     const open = peek();
     expect("{", "'{' para abrir un bloque");
     depth++;
+    const savedBrace = noBrace;
+    noBrace = 0;
     const body = [];
+    if (inView > 0) body.view = true;
     while (!is("}")) {
       if (is("eof")) throw fail(`Falta '}' para cerrar el bloque abierto en la línea ${open.line}`);
       body.push(statement());
     }
     expect("}");
+    noBrace = savedBrace;
     depth--;
     return body;
+  }
+
+  // Un bloque de código normal aunque esté dentro de un view (cuerpo de función o closure).
+  function codeBlock() {
+    const saved = inView;
+    inView = 0;
+    try { return block(); } finally { inView = saved; }
+  }
+  function codeExpr() {
+    const saved = inView;
+    inView = 0;
+    try { return expression(); } finally { inView = saved; }
+  }
+  // La condición de un if/while/for/match: ahí '{' abre el bloque.
+  function header() {
+    noBrace++;
+    try { return expression(); } finally { noBrace--; }
+  }
+
+  function decorators() {
+    const list = [];
+    while (accept("@")) {
+      const n = expect("id", "el nombre del decorador");
+      list.push({ name: n.value, args: accept("(") ? args(")") : [], line: n.line });
+    }
+    return list;
   }
 
   // Devuelve los nombres; los valores por defecto quedan en ps.defaults
@@ -75,7 +115,7 @@ export function parser(tokens, opciones) {
     expect("(", "'(' con los parámetros");
     const ps = params(")");
     if (accept("->")) skipType();
-    return { type: "function", name, params: ps, defaults: ps.defaults, body: block(), line: L, file };
+    return { type: "function", name, params: ps, defaults: ps.defaults, body: codeBlock(), line: L, file };
   }
 
   function binding() {
@@ -124,7 +164,7 @@ export function parser(tokens, opciones) {
   function exportStmt(L) {
     if (depth > 0) throw fail("export solo puede ir en el nivel superior del archivo");
     pos++;
-    if (!(is("let") || is("var") || is("fn") || is("class") || is("struct")))
+    if (!(is("let") || is("var") || is("fn") || is("class") || is("struct") || is("@")))
       throw fail(`Después de export va let, var, fn, class o struct, pero se encontró ${describe(peek())}`);
     const decl = statement();
     const names = decl.type === "class" ? [decl.name] : Array.isArray(decl.target) ? decl.target : [decl.target];
@@ -136,6 +176,18 @@ export function parser(tokens, opciones) {
     switch (t.type) {
       case "import": return importStmt(L);
       case "export": return exportStmt(L);
+      case "@": {
+        const decs = decorators();
+        if (is("export") && (peek(1).type === "struct" || peek(1).type === "class")) {
+          const ex = exportStmt(L);
+          ex.decl.decorators = decs;
+          return ex;
+        }
+        if (!is("struct") && !is("class")) throw fail(`Un decorador como @${decs[0].name} va justo antes de un struct o una class`);
+        const st = statement();
+        st.decorators = decs;
+        return st;
+      }
       case "let": case "var": {
         pos++;
         const target = binding();
@@ -164,13 +216,27 @@ export function parser(tokens, opciones) {
         const methods = [], fields = [];
         while (!is("}")) {
           if (is("eof")) throw fail(`Falta '}' para cerrar la clase ${name}`);
+          const fdecs = is("@") ? decorators() : null;
+          if (fdecs) {
+            for (const d of fdecs)
+              if (!FIELD_DECORATORS.has(d.name)) throw fail(`@${d.name} no se puede usar en un campo. Usa @State, @Input o @Output`, tokens[pos - 1]);
+            if (!is("let") && !is("var")) throw fail(`Después de @${fdecs[0].name} va var y el nombre del campo`);
+          }
           if (is("let") || is("var")) {
             pos++;
             const f = expect("id", "el nombre de un campo");
             if (accept(":")) skipType();
             const value = accept("=") ? expression() : { type: "lit", value: null, line: f.line };
-            fields.push({ name: f.value, value });
+            fields.push({ name: f.value, value, decor: fdecs ? fdecs[0].name : null });
             endStmt();
+            continue;
+          }
+          if (isWord("view") && peek(1).type === "{") {
+            const v = tokens[pos++];
+            inView++;
+            let body;
+            try { body = block(); } finally { inView--; }
+            methods.push({ type: "function", name: "view", params: [], defaults: null, body, isView: true, line: v.line, file });
             continue;
           }
           accept("fn");
@@ -184,13 +250,13 @@ export function parser(tokens, opciones) {
       }
       case "if": return { type: "exp", exp: ifExpr(), line: L };
       case "match": return { type: "exp", exp: matchExpr(), line: L };
-      case "while": { pos++; const cond = expression(); return { type: "while", cond, body: block(), line: L }; }
+      case "while": { pos++; const cond = header(); return { type: "while", cond, body: block(), line: L }; }
       case "loop": { pos++; return { type: "loop", body: block(), line: L }; }
       case "for": {
         pos++;
         const target = binding();
         expect("in", "'in' después de la variable del for");
-        const iter = expression();
+        const iter = header();
         return { type: "for", target, iter, body: block(), line: L };
       }
       case "break": pos++; endStmt(); return { type: "break", line: L };
@@ -230,10 +296,15 @@ export function parser(tokens, opciones) {
   function ifExpr() {
     const L = peek().line;
     expect("if");
-    const cond = expression();
+    const cond = header();
     const then = block();
     let otherwise = null;
-    if (accept("else")) otherwise = is("if") ? [{ type: "exp", exp: ifExpr(), line: peek().line }] : block();
+    if (accept("else")) {
+      if (is("if")) {
+        otherwise = [{ type: "exp", exp: ifExpr(), line: peek().line }];
+        if (inView > 0) otherwise.view = true;
+      } else otherwise = block();
+    }
     return { type: "if", cond, then, otherwise, line: L };
   }
 
@@ -265,7 +336,7 @@ export function parser(tokens, opciones) {
   function matchExpr() {
     const L = peek().line;
     expect("match");
-    const value = expression();
+    const value = header();
     expect("{", "'{' para abrir el match");
     const arms = [];
     while (!is("}")) {
@@ -350,9 +421,48 @@ export function parser(tokens, opciones) {
     }
   }
   function closure(ps, L) {
-    if (is("{")) return { type: "function", name: "closure", params: ps, defaults: ps.defaults, body: block(), closure: true, line: L, file };
-    return { type: "function", name: "closure", params: ps, defaults: ps.defaults, body: expression(), isExpr: true, closure: true, line: L, file };
+    if (is("{")) return { type: "function", name: "closure", params: ps, defaults: ps.defaults, body: codeBlock(), closure: true, line: L, file };
+    return { type: "function", name: "closure", params: ps, defaults: ps.defaults, body: codeExpr(), isExpr: true, closure: true, line: L, file };
   }
+  // Un elemento dentro de un view: div(.clase, "texto", { atributo: valor }) { hijos }
+  // button("Texto") { acción } ejecuta el bloque al hacer clic.
+  // element("mi-etiqueta", { prop: valor }) crea cualquier etiqueta, por ejemplo otro componente.
+  function elem() {
+    const t = tokens[pos++], L = t.line;
+    const list = [];
+    let tag = { type: "lit", value: t.value, line: L };
+    if (accept("(")) {
+      if (t.value === "element") {
+        tag = codeExpr();
+        accept(",");
+      }
+      while (!is(")")) {
+        if (is("eof")) throw fail("Falta ')' para cerrar el elemento");
+        if (is(".") && peek(1).type === "id") {
+          pos++;
+          let last = tokens[pos++];
+          let name = last.value;
+          // .boton-grande: un guion pegado sigue siendo parte del nombre de la clase
+          while (is("-") && peek(1).type === "id" && peek().line === last.line &&
+            peek().col === last.col + String(last.value).length && peek(1).col === peek().col + 1) {
+            pos++;
+            last = tokens[pos++];
+            name += "-" + last.value;
+          }
+          list.push({ type: "cls", name, line: L });
+        } else list.push(codeExpr());
+        if (!accept(",")) break;
+      }
+      expect(")", "')' para cerrar el elemento");
+    } else if (t.value === "element") throw fail("element necesita la etiqueta: element(\"mi-etiqueta\")", t);
+    let content = null, action = null;
+    if (is("{") && sameLine()) {
+      if (t.value === "button") action = { type: "function", name: "closure", params: [], defaults: null, body: codeBlock(), closure: true, line: L, file };
+      else content = block();
+    }
+    return { type: "elem", tag, args: list, content, action, line: L };
+  }
+
   function primary() {
     const t = peek(), L = t.line;
     switch (t.type) {
@@ -368,7 +478,18 @@ export function parser(tokens, opciones) {
       case "nil": pos++; return { type: "lit", value: null, line: L };
       case "self": pos++; return { type: "self", line: L };
       case "super": { pos++; expect(".", "'.' después de super"); return { type: "super", name: propName(), line: L }; }
-      case "id": pos++; return { type: "var", name: t.value, line: L };
+      case "id": {
+        const next = peek(1);
+        const opens = next.line === t.line && (next.type === "(" || next.type === "{");
+        if (inView > 0 && noBrace === 0 && opens && (TAGS.has(t.value) || t.value === "element")) return elem();
+        pos++;
+        return { type: "var", name: t.value, line: L };
+      }
+      case "$": {
+        pos++;
+        const n = expect("id", "el nombre de la variable o campo que se une, por ejemplo $nombre");
+        return { type: "bindref", name: n.value, line: L };
+      }
       case "|": { pos++; return closure(params("|"), L); }
       case "||": { pos++; return closure([], L); }
       case "if": return ifExpr();

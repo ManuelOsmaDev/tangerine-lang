@@ -1,12 +1,18 @@
-let app = query("#app")
-let tarjeta = append(app, el("main", "tarjeta", nil))
-append(tarjeta, el("h1", nil, "Hola desde Tangerine"))
-append(tarjeta, el("p", "lema", "Edita src/main.tng y guarda: la página se recarga sola."))
+// La página es un struct con view { }. Lo que marques con @State, al cambiar, se vuelve a dibujar solo.
+struct App {
+  @State var cuenta = 0
 
-// Un estado: cuando cambia, todo lo que lo muestra se actualiza solo.
-let cuenta = state(0)
-append(tarjeta, el("p", "numero", cuenta))
+  view {
+    main(.tarjeta) {
+      h1 { "Hola desde Tangerine" }
+      p(.lema) { "Edita src/main.tng y guarda: la página se recarga sola." }
+      p(.numero) { "{cuenta}" }
+      div(.botones) {
+        button(.boton, "−") { cuenta -= 1 }
+        button(.boton, .primario, "+") { cuenta += 1 }
+      }
+    }
+  }
+}
 
-let botones = append(tarjeta, el("div", "botones", nil))
-on(append(botones, el("button", "boton", "−")), "click", || cuenta.update(|n| n - 1))
-on(append(botones, el("button", "boton primario", "+")), "click", || cuenta.update(|n| n + 1))
+mount("#app", App)

@@ -103,6 +103,10 @@ export function reactivo() {
       tng.reactive = {
         isState,
         effect: efecto,
+        /** Un valor observable de bajo nivel: { read, write, peek }. */
+        signal: senal,
+        /** Detiene un efecto creado con effect. */
+        dispose(e) { if (e) { e.muerto = true; limpiar(e); } },
         /** Llama a `aplicar(valor)` ahora y, si `v` es un estado, cada vez que cambie. */
         watch(v, aplicar) {
           if (isState(v)) efecto(() => aplicar(v[STATE].read()));
