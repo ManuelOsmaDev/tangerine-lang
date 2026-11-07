@@ -190,7 +190,7 @@ function cmdBuild(flags) {
   try {
     const r = buildToDisk(config);
     const kb = (Buffer.byteLength(r.html) / 1024).toFixed(1);
-    console.log(`${verde("✓")} ${path.relative(process.cwd(), r.out)} ${gris(`(${r.modules.length} módulos, ${kb} KB)`)}`);
+    console.log(`${verde("✓")} ${path.relative(process.cwd(), r.out)} ${gris(`(${r.modules.length} ${r.modules.length === 1 ? "módulo" : "módulos"}, ${kb} KB)`)}`);
   } catch (err) {
     fail(err.message);
   }
@@ -236,7 +236,7 @@ function cmdDev(flags) {
   const rebuild = () => {
     try {
       const r = buildToDisk(config, { dev: true });
-      console.log(`${verde("✓")} ${gris(new Date().toLocaleTimeString("es"))} construido (${r.modules.length} módulos)`);
+      console.log(`${verde("✓")} ${gris(new Date().toLocaleTimeString("es"))} construido (${r.modules.length} ${r.modules.length === 1 ? "módulo" : "módulos"})`);
     } catch (err) {
       console.error(rojo("error: ") + err.message);
     }

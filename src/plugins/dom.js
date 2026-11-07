@@ -12,33 +12,69 @@ export function dom() {
       const truthy = (v) => tng.truthy(v);
       const invoke = (f, args) => tng.invoke(f, args);
       let currentRoute = null;
+      // Si `v` es un estado (state o computed), `f` se vuelve a aplicar cada vez que cambia.
+      const live = (v, f) => (tng.reactive ? tng.reactive.watch(v, f) : f(v));
+      const call = (f, args) => tng._rt.call(f, args || []);
+      const isElement = (x) => typeof Element !== "undefined" && x instanceof Element;
 
       tng.defineAll({
         query: (sel) => document.querySelector(sel),
         query_all: (sel) => Array.from(document.querySelectorAll(sel)),
         el: (tag, cls, text) => {
           const e = document.createElement(tag);
-          if (cls) e.className = cls;
+          live(cls, (c) => { e.className = c ? show(c) : ""; });
           if (tag === "button") e.type = "button";
-          if (text !== null && text !== undefined) e.textContent = show(text);
+          live(text, (t) => { if (t !== null && t !== undefined) e.textContent = show(t); });
           return e;
         },
         append: (parent, child) => { parent.appendChild(child); return child; },
         remove: (e) => { if (e) e.remove(); return null; },
         add_text: (e, s) => { e.appendChild(document.createTextNode(show(s))); return e; },
-        set_text: (e, s) => { e.textContent = show(s); return e; },
+        set_text: (e, s) => { live(s, (t) => { e.textContent = show(t); }); return e; },
         attr: (e, k, v) => {
-          if (v === null || v === undefined) e.removeAttribute(k);
-          else e.setAttribute(k, show(v));
+          live(v, (x) => {
+            if (x === null || x === undefined || x === false) e.removeAttribute(k);
+            else e.setAttribute(k, x === true ? "" : show(x));
+          });
           return e;
         },
         get_attr: (e, k) => e.getAttribute(k),
-        toggle_class: (e, name, on) => { e.classList.toggle(name, on === undefined ? undefined : truthy(on)); return e; },
-        set_style: (e, prop, v) => { e.style.setProperty(prop, v == null ? "" : show(v)); return e; },
+        toggle_class: (e, name, on) => {
+          if (on === undefined) e.classList.toggle(name);
+          else live(on, (x) => e.classList.toggle(name, truthy(x)));
+          return e;
+        },
+        set_style: (e, prop, v) => { live(v, (x) => e.style.setProperty(prop, x == null ? "" : show(x))); return e; },
         clear: (e) => { e.replaceChildren(); return e; },
-        set_visible: (e, on) => { e.hidden = !truthy(on); return e; },
+        set_visible: (e, on) => { live(on, (x) => { e.hidden = !truthy(x); }); return e; },
         value: (e) => e.value,
-        set_value: (e, v) => { e.value = show(v); return e; },
+        set_value: (e, v) => { live(v, (x) => { e.value = x == null ? "" : show(x); }); return e; },
+        // Une un campo con un estado en los dos sentidos: escribir cambia el estado y viceversa.
+        bind: (e, s) => {
+          if (!tng.reactive || !tng.reactive.isState(s)) throw new Error("bind necesita un state: bind(campo, state(\"\"))");
+          const casilla = e.type === "checkbox" || e.type === "radio";
+          const numero = e.type === "number" || e.type === "range";
+          live(s, (x) => {
+            if (casilla) e.checked = truthy(x);
+            else { const t = x == null ? "" : show(x); if (e.value !== t) e.value = t; }
+          });
+          e.addEventListener(casilla || e.tagName === "SELECT" ? "change" : "input", () => {
+            const v = casilla ? e.checked : numero ? (e.value === "" ? null : Number(e.value)) : e.value;
+            invoke(() => tng.reactive.set(s, v));
+          });
+          return e;
+        },
+        // Vuelve a dibujar el contenido de `parent` cada vez que cambia un estado que use `f`.
+        // `f` puede crear los hijos con append o devolver un elemento o una lista de elementos.
+        render: (parent, f) => {
+          const pintar = () => {
+            parent.replaceChildren();
+            const r = call(f, f && f.decl && f.decl.params.length ? [parent] : []);
+            for (const x of Array.isArray(r) ? r : [r]) if (isElement(x) && x.parentNode !== parent) parent.appendChild(x);
+          };
+          if (tng.reactive) tng.reactive.effect(pintar); else pintar();
+          return parent;
+        },
         // Si el callback recibe un parámetro, le llega un mapa { type, key, value, target }
         on: (e, event, f) => {
           const wantsEvent = !!(f && f.decl && f.decl.params.length);

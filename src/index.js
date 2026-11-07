@@ -4,8 +4,9 @@ import { lexer, KEYWORDS } from "./lexer.js";
 import { parser, parse, sx, importsOf } from "./parser.js";
 import { createInterpreter, resolvePath } from "./interprete.js";
 import { show, truthy, makeMap, isMap, typeOf, fromJS, toJS } from "./valores.js";
+import { reactivo } from "./plugins/reactivo.js";
 
-export const VERSION = "3.1.1";
+export const VERSION = "3.2.0";
 
 const globalPlugins = [];
 
@@ -62,6 +63,7 @@ export class Tangerine {
     });
     this.stepLimit = opciones.stepLimit || 0;
     this.plugins = [];
+    this.use(reactivo());
     if (opciones.globalPlugins !== false) for (const p of globalPlugins) this.use(p);
     for (const p of opciones.plugins || []) this.use(p);
     if (opciones.natives) this.defineAll(opciones.natives);

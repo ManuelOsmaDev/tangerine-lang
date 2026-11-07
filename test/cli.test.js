@@ -56,13 +56,13 @@ describe("CLI", () => {
     const r = tangerine(["new", "mi-app"], { cwd: tmp });
     expect(r.status).toBe(0);
     const app = path.join(tmp, "mi-app");
-    for (const f of ["tangerine.json", "package.json", ".gitignore", "src/main.tng", "src/contador.tng"])
+    for (const f of ["tangerine.json", "package.json", ".gitignore", "src/main.tng"])
       expect(fs.existsSync(path.join(app, f))).toBe(true);
     expect(JSON.parse(fs.readFileSync(path.join(app, "package.json"), "utf8")).name).toBe("mi-app");
 
     const b = tangerine(["build"], { cwd: app });
     expect(b.stderr).toBe("");
-    expect(b.stdout).toContain("2 módulos");
+    expect(b.stdout).toContain("1 módulo,");
     const html = fs.readFileSync(path.join(app, "dist", "index.html"), "utf8");
 
     const dom = new JSDOM(html, { runScripts: "dangerously" });

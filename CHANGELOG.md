@@ -1,5 +1,14 @@
 # Cambios
 
+## 3.2.0
+
+- **Estado reactivo**: `state`, `computed` y `effect`. Cuando un estado cambia, lo que depende de él se actualiza solo.
+- Las funciones de la página (`el`, `set_text`, `attr`, `toggle_class`, `set_style`, `set_visible`, `set_value`) aceptan un estado y lo siguen.
+- `bind(campo, estado)` une un campo de formulario con un estado en los dos sentidos.
+- `render(contenedor, f)` vuelve a dibujar una parte de la página cuando cambia lo que usa.
+- Un estado se puede mostrar o interpolar directamente: `"Hola, {nombre}"`.
+- La plantilla web usa estado reactivo y cabe en un solo archivo.
+
 ## 3.1.1
 
 - Logo nuevo: la naranja con el `>`, en el README, la web, el favicon y VS Code.

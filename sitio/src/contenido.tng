@@ -591,6 +591,35 @@ assert(1 + 1 == 2, "math is broken")',
     },
   },
   {
+    id: "reactivo",
+    group: "Referencia",
+    title: "Estado reactivo",
+    paragraphs: [
+      'Un `state` guarda un dato y avisa cuando cambia. Todo lo que depende de él se actualiza solo: el texto de la página, un cálculo o un `effect`.',
+      'Se lee con `.get()` y se cambia con `.set(nuevo)` o `.update(|v| ...)`. Pruébalo: cada `set` vuelve a ejecutar el `effect`.',
+      'En una página, las funciones como `el`, `set_text` o `toggle_class` aceptan un estado y lo siguen. Por ejemplo, `el("p", nil, cuenta)` muestra siempre el valor actual de `cuenta`.',
+    ],
+    code: 'let precio = state(10)
+let cantidad = state(2)
+let total = computed(|| precio.get() * cantidad.get())
+
+effect(|| println("Total: {total}"))
+
+cantidad.set(3)
+precio.update(|p| p + 5)',
+    runnable: true,
+    table: {
+      columns: ["Función", "Qué hace"],
+      rows: [
+        ['`state(valor)`', 'Guarda un dato que se puede observar.'],
+        ['`computed(|| ...)`', 'Un dato que se calcula a partir de otros y se recalcula solo.'],
+        ['`effect(|| ...)`', 'Código que se repite cada vez que cambia un estado que usa.'],
+        ['`bind(campo, estado)`', 'Une un campo de formulario con un estado en los dos sentidos.'],
+        ['`render(contenedor, || ...)`', 'Vuelve a dibujar una parte de la página cuando cambia lo que usa.'],
+      ],
+    },
+  },
+  {
     id: "navegador",
     group: "Referencia",
     title: "Tangerine en el navegador",

@@ -100,6 +100,50 @@ error: app.tng, línea 2, columna 1: Se esperaba ']' pero se encontró 'println'
 
 Fuera del navegador hay funciones para trabajar con el sistema: `read_file`, `write_file`, `file_exists`, `list_dir`, `args()`, `env(nombre)` y `exit(código)`.
 
+## Estado reactivo
+
+Guarda los datos de tu página en un `state`. Cuando el estado cambia, todo lo que lo muestra se actualiza solo: no hay que borrar ni volver a pintar nada a mano.
+
+```rust
+let cuenta = state(0)
+append(query("#app"), el("p", nil, cuenta))     // muestra 0, luego 1, 2...
+
+let boton = append(query("#app"), el("button", nil, "Sumar"))
+on(boton, "click", || cuenta.update(|n| n + 1))
+```
+
+Son cinco ideas:
+
+| Qué | Para qué |
+| --- | --- |
+| `state(valor)` | Guarda un dato. Se lee con `.get()` y se cambia con `.set(nuevo)` o `.update(\|v\| ...)`. |
+| `computed(\|\| ...)` | Un dato que se calcula a partir de otros y se recalcula solo: `computed(\|\| precio.get() * cantidad.get())`. |
+| `effect(\|\| ...)` | Código que se repite cada vez que cambia un estado que usa: `effect(\|\| save("tema", tema.get()))`. |
+| `bind(campo, estado)` | Une un `input`, `select` o casilla con un estado en los dos sentidos. |
+| `render(contenedor, \|\| ...)` | Vuelve a dibujar una parte de la página, por ejemplo una lista: `render(ul, \|\| tareas.get().map(\|t\| el("li", nil, t)))`. |
+
+Las funciones de la página aceptan un estado donde antes iba un valor, y lo siguen: `el`, `set_text`, `attr`, `toggle_class`, `set_style`, `set_visible` y `set_value`. Un estado también se puede escribir dentro de un texto: `"Hola, {nombre}"`.
+
+Una lista de tareas completa:
+
+```rust
+let tareas = state([])
+let nueva = state("")
+let app = query("#app")
+
+let campo = append(app, el("input", nil, nil))
+bind(campo, nueva)
+on(campo, "keydown", |e| {
+  if e.key == "Enter" && nueva.get() != "" {
+    tareas.update(|l| { l.push(nueva.get()); l })
+    nueva.set("")
+  }
+})
+
+append(app, el("p", nil, computed(|| "{tareas.get().len()} tareas")))
+render(append(app, el("ul", nil, nil)), || tareas.get().map(|t| el("li", nil, t)))
+```
+
 ## Proyectos web
 
 ```bash

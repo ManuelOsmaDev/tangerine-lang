@@ -81,6 +81,10 @@ export class Instance {
   }
 }
 
+/** Marca interna de los estados reactivos (state y computed). */
+export const STATE = Symbol("tangerine.state");
+export const isState = (v) => v !== null && typeof v === "object" && !!v[STATE];
+
 export const isMap = (v) => v !== null && typeof v === "object" && Object.getPrototypeOf(v) === null;
 export const makeMap = (pairs) => {
   const o = Object.create(null);
@@ -113,6 +117,7 @@ export function typeOf(v) {
   if (v instanceof Fn || typeof v === "function") return "Fn";
   if (v instanceof Class) return "Class";
   if (v instanceof Instance) return v.cls.name;
+  if (isState(v)) return "State";
   if (isMap(v)) return "Map";
   return "Element";
 }
@@ -120,6 +125,7 @@ export function typeOf(v) {
 /** Convierte un valor en texto. Con `nested`, los strings llevan comillas. */
 export function show(v, nested, depth) {
   depth = depth || 0;
+  if (isState(v)) return show(v[STATE].read(), nested, depth);
   v = norm(v);
   if (v === null) return "nil";
   if (typeof v === "string") return nested ? JSON.stringify(v) : v;

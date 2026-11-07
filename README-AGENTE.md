@@ -356,6 +356,21 @@ Los literales negativos necesitan paréntesis para llamar métodos: `(-4).abs()`
 | `go(destino)` | Cambia el `#hash`. |
 | `scroll_top()`, `scroll_to(e)` | Desplaza la página. |
 | `when_visible(e, f)` | Llama a `f` cuando `e` entra en pantalla. |
+| `bind(campo, estado)` | Une un input/select/casilla con un `state` en los dos sentidos. |
+| `render(contenedor, f)` | Vacía `contenedor` y vuelve a ejecutar `f` cada vez que cambia un estado que usa. `f` puede devolver un elemento o una lista. |
+
+`el`, `set_text`, `attr`, `toggle_class`, `set_style`, `set_visible` y `set_value` aceptan un `state` o `computed` en lugar del valor y se actualizan solos.
+
+### 5.3 Estado reactivo (siempre disponible)
+
+| Función | Qué hace |
+| --- | --- |
+| `state(v)` | Estado con `.get()`, `.set(v)` y `.update(\|v\| ...)`. `type_of` da `"State"`; `show` e interpolación muestran su valor. |
+| `computed(f)` | Estado de solo lectura (`.get()`) que se recalcula cuando cambian los estados que lee `f`. |
+| `effect(f)` | Ejecuta `f` ahora y cada vez que cambia un estado que leyó. |
+| `is_state(v)` | `true` si `v` es un `state` o `computed`. |
+
+|L|a|s| |l|i|s|t|a|s| |y| |m|a|p|a|s| |a|v|i|s|a|n| |s|i|e|m|p|r|e| |e|n| |`|s|e|t|`|/|`|u|p|d|a|t|e|`|,| |a|u|n|q|u|e| |s|e|a|n| |e|l| |m|i|s|m|o| |o|b|j|e|t|o|:| |`|l|.|u|p|d|a|t|e|(|\|||x|\||| |{| |x|.|p|u|s|h|(|1|)|;| |x| |}|)|`| |f|u|n|c|i|o|n|a|.|
 
 Ejemplo de página:
 
