@@ -151,3 +151,19 @@ render_html(Pagina())`);
     );
   });
 });
+
+describe("modificadores antes del bloque", () => {
+  it("Card(\"x\").variant(\"y\") { ... } también recibe el bloque", () => {
+    const { valor } = correr(`
+struct Card {
+  var t = ""
+  var v = "a"
+  init(x) { t = x }
+  fn variant(x) { v = x; self }
+  view { section({ class: v }) { h3 { t }; children } }
+}
+struct P { view { Card("Hola").variant("b") { p { "dentro" } } } }
+render_html(P())`);
+    expect(valor).toBe('<section class="b"><h3>Hola</h3><p>dentro</p></section>');
+  });
+});

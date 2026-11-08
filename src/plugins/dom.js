@@ -98,8 +98,10 @@ export function dom() {
         const el = document.createElement(v.tag);
         if (v.tag === "button" && !("type" in v.attrs)) el.type = "button";
         el.__tngKey = keyOf(v);
-        update(el, v);
+        setAttrs(el, v);
+        setEvents(el, v);
         if (!esComponente(v.tag)) for (const c of v.children) el.appendChild(crear(c));
+        setBinding(el, v); // después de los hijos: un select ya tiene sus opciones
         // { ref: |el| ... } recibe el elemento real cuando ya está en la página.
         const ref = norm(v.attrs.ref);
         if (ref) queueMicrotask(() => invoke(ref, [el]));
@@ -267,6 +269,7 @@ export function dom() {
           return inst;
         },
         query: (sel) => document.querySelector(sel),
+        focus: (e) => { if (e && e.focus) e.focus({ preventScroll: true }); return e; },
         query_all: (sel) => Array.from(document.querySelectorAll(sel)),
         el: (tag, cls, text) => {
           const e = document.createElement(tag);

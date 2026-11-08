@@ -152,6 +152,7 @@ export function typeOf(v) {
   if (v instanceof Instance) return v.cls.name;
   if (isState(v)) return "State";
   if (v instanceof VNode) return "View";
+  if (isBinding(v)) return "Binding";
   if (isMap(v)) return "Map";
   if (v instanceof Promise) return "Promise";
   return "Element";

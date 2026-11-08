@@ -234,6 +234,8 @@ export function createInterpreter(host) {
       throw new TngError(`No se puede leer '${name}' de nil. Usa ?. si el valor puede ser nil`, L);
     }
     let m = null;
+    // $campo: un componente puede leerlo y cambiarlo con .get() y .set(v)
+    if (isBinding(obj) && (name === "get" || name === "set")) return builtin(name, obj[name]);
     if (obj instanceof Instance) {
       if (name in obj.fields) return obj.fields[name];
       const f = obj.cls.findMethod(name);

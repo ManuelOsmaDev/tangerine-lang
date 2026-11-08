@@ -1,6 +1,6 @@
 // ─────────────── 2. Parser: tokens a árbol de sintaxis ───────────────
 import { TngError } from "./errores.js";
-import { lexer, describe } from "./lexer.js";
+import { lexer, describe, KEYWORDS } from "./lexer.js";
 
 const ASSIGN_OPS = new Set(["=", "+=", "-=", "*=", "/="]);
 const ASSIGNABLE = new Set(["var", "member", "index"]);
@@ -9,7 +9,8 @@ const ASSIGNABLE = new Set(["var", "member", "index"]);
 export const TAGS = new Set((
   "div span p a button h1 h2 h3 h4 h5 h6 ul ol li img input textarea select option label form " +
   "section header footer main nav article aside strong em small code pre table thead tbody tr td th " +
-  "br hr figure figcaption details summary video audio canvas i b"
+  "br hr figure figcaption details summary video audio canvas i b " +
+  "fieldset legend dl dt dd blockquote mark time sup sub iframe picture source tfoot caption dialog"
 ).split(" "));
 const FIELD_DECORATORS = new Set(["State", "Input", "Output"]);
 
@@ -422,6 +423,10 @@ export function parser(tokens, opciones) {
     expect(close, `'${close}'`);
     return list;
   }
+  function compSinBloque(x) {
+    while (x && (x.type === "call" || x.type === "member")) x = x.type === "call" ? x.fn : x.obj;
+    return x && x.type === "comp" && !x.content ? x : null;
+  }
   function postfix() {
     let e = primary();
     for (;;) {
@@ -430,6 +435,8 @@ export function parser(tokens, opciones) {
       else if (is("[") && sameLine()) { pos++; const index = expression(); expect("]", "']'"); e = { type: "index", obj: e, index, line: L }; }
       else if (is(".")) { pos++; e = { type: "member", obj: e, name: propName(), line: L }; }
       else if (is("?.")) { pos++; e = { type: "member", obj: e, name: propName(), optional: true, line: L }; }
+      // En un view, el bloque también puede ir después de los modificadores: Card("x").variant("y") { ... }
+      else if (inView > 0 && noBrace === 0 && is("{") && sameLine() && compSinBloque(e)) compSinBloque(e).content = block();
       else return e;
     }
   }
@@ -437,6 +444,8 @@ export function parser(tokens, opciones) {
     if (is("{")) return { type: "function", name: "closure", params: ps, defaults: ps.defaults, body: codeBlock(), closure: true, line: L, file };
     return { type: "function", name: "closure", params: ps, defaults: ps.defaults, body: codeExpr(), isExpr: true, closure: true, line: L, file };
   }
+  // En .clase vale cualquier palabra, también las reservadas (.hero-in, .for-each)
+  const esNombre = (t) => typeof t.value === "string" && /^[A-Za-z_À-ɏ][\wÀ-ɏ]*$/.test(t.value) && (t.type === "id" || KEYWORDS.has(t.type));
   // Un elemento dentro de un view: div(.clase, "texto", { atributo: valor }) { hijos }
   // button("Texto") { acción } ejecuta el bloque al hacer clic.
   // element("mi-etiqueta", { prop: valor }) crea cualquier etiqueta, por ejemplo otro componente.
@@ -451,12 +460,12 @@ export function parser(tokens, opciones) {
       }
       while (!is(")")) {
         if (is("eof")) throw fail("Falta ')' para cerrar el elemento");
-        if (is(".") && peek(1).type === "id") {
+        if (is(".") && esNombre(peek(1))) {
           pos++;
           let last = tokens[pos++];
           let name = last.value;
           // .boton-grande: un guion pegado sigue siendo parte del nombre de la clase
-          while (is("-") && peek(1).type === "id" && peek().line === last.line &&
+          while (is("-") && esNombre(peek(1)) && peek().line === last.line &&
             peek().col === last.col + String(last.value).length && peek(1).col === peek().col + 1) {
             pos++;
             last = tokens[pos++];
