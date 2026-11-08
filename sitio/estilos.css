@@ -216,3 +216,21 @@ td:first-child{white-space:nowrap}
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;scroll-behavior:auto!important}
 }
+
+/* Tangerine UI en la portada */
+.nav-ui{color:var(--mandarina-texto)}
+.seccion-ui{position:relative;overflow:hidden;background:radial-gradient(ellipse 60% 70% at 85% 30%,var(--suave),transparent 70%)}
+.ui-rejilla{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:48px;align-items:center}
+.ui-sello{display:inline-flex;align-items:center;gap:8px;margin-bottom:16px;padding:6px 12px;border-radius:999px;background:var(--suave);color:var(--mandarina-texto);font:600 .82rem var(--cuerpo)}
+.ui-sello::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--mandarina);box-shadow:0 0 0 4px rgba(247,129,30,.18)}
+.ui-texto h2{margin:0 0 14px}
+.ui-texto p{color:var(--tinta-2);margin:0 0 20px}
+.ui-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 26px}
+.ui-chip{padding:6px 12px;border:1px solid var(--linea-fuerte);border-radius:999px;background:var(--superficie);font:500 .85rem ui-monospace,Consolas,monospace;color:var(--tinta);transition:transform .2s ease,border-color .2s ease}
+.ui-chip:hover{transform:translateY(-2px);border-color:var(--mandarina)}
+.ui-codigo{border-radius:18px;overflow:hidden;background:var(--codigo);border:1px solid var(--codigo-linea);box-shadow:0 30px 60px -30px rgba(0,0,0,.45);transform:rotate(1deg);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.ui-codigo:hover{transform:rotate(0) translateY(-4px)}
+.ui-codigo-cab{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px 10px 16px;border-bottom:1px solid var(--codigo-linea);color:var(--codigo-tenue);font:500 .82rem ui-monospace,Consolas,monospace}
+.ui-codigo pre{margin:0;padding:18px 20px;overflow:auto;color:var(--codigo-tinta);font-size:.86rem;line-height:1.7}
+@media (max-width:900px){.ui-rejilla{grid-template-columns:1fr}.ui-codigo{transform:none}}
+@media (prefers-reduced-motion:reduce){.ui-codigo,.ui-chip{transition:none}}

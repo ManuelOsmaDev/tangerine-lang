@@ -5,6 +5,22 @@
 import { make, link, paint_output } from "./ui.tng"
 import { topics, samples, features } from "./contenido.tng"
 
+let ui_sample = 'import { Card, Input, Switch, Button, toast, Toaster } from "tangerine-lang-ui"
+
+struct Perfil {
+  @State var nombre = ""
+  @State var avisos = true
+
+  view {
+    Card("Tu perfil", "Así te verán los demás") {
+      Input("Nombre", $nombre).placeholder("Ana Pérez")
+      Switch("Recibir avisos", $avisos)
+      Button("Guardar", || toast("Guardado", "success"))
+    }
+    Toaster()
+  }
+}'
+
 let engine_sample = 'let juice = 2 + 3 * 4
 log(juice)'
 
@@ -52,6 +68,28 @@ export fn build_home(home) {
     make(card, "p", nil, f.text)
     make(card, "span", "rasgo-mas", "Ver en la guía")
   }
+
+  // Tangerine UI: la librería de componentes
+  let ui_section = make(home, "section", "seccion seccion-ui", nil)
+  attr(ui_section, "id", "tangerine-ui")
+  let ui_inner = make(ui_section, "div", "contenedor ui-rejilla", nil)
+  let ui_text = make(ui_inner, "div", "ui-texto", nil)
+  make(ui_text, "span", "ui-sello", "Librería oficial de componentes")
+  make(ui_text, "h2", nil, "Tangerine UI: tu app, sin empezar de cero")
+  make(ui_text, "p", nil, "Botones, formularios, modales, pestañas, tablas, avisos y más, listos para usar. Son accesibles, tienen modo oscuro y cambias su color con una variable. Se escriben como en SwiftUI y su CSS también funciona en Angular, React o cualquier HTML.")
+  let ui_chips = make(ui_text, "div", "ui-chips", nil)
+  for n in ["Button", "Input", "Select", "Switch", "Card", "Modal", "Tabs", "Table", "Toast", "Badge", "Avatar", "Progress"] {
+    make(ui_chips, "span", "ui-chip", n)
+  }
+  let ui_actions = make(ui_text, "div", "acciones", nil)
+  attr(make(ui_actions, "a", "boton primario", "Ver Tangerine UI →"), "href", "https://manuelosmadev.github.io/tangerine-ui/")
+  attr(make(ui_actions, "a", "boton", "Ver en npm"), "href", "https://www.npmjs.com/package/tangerine-lang-ui")
+  let ui_code = make(ui_inner, "div", "ui-codigo", nil)
+  let ui_head = make(ui_code, "div", "ui-codigo-cab", nil)
+  make(ui_head, "span", nil, "tangerine add tangerine-lang-ui")
+  let ui_copy = make(ui_head, "button", "boton-mini", "Copiar")
+  on(ui_copy, "click", || copy("tangerine add tangerine-lang-ui", ui_copy))
+  highlight(make(ui_code, "pre", nil, nil), ui_sample)
 
   // Instalar
   let install_section = make(home, "section", "seccion", nil)

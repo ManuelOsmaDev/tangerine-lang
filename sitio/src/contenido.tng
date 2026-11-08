@@ -452,6 +452,50 @@ log(render_html(c))',
     },
   },
   {
+    id: "ui",
+    group: "Componentes",
+    title: "Tangerine UI",
+    paragraphs: [
+      'Tangerine UI es la librería oficial de componentes: botones, formularios, modales, pestañas, tablas, avisos y layout, listos para usar. Son accesibles, tienen modo oscuro y cambias su color con la variable `--t-accent`.',
+      'Instálala con `tangerine add tangerine-lang-ui` y agrega su CSS a `styles` en `tangerine.json`: `node_modules/tangerine-lang-ui/css/tangerine-ui.css`. Después importa los que uses.',
+      'Se escriben como en SwiftUI: el contenido va en un bloque `{ }`, las variantes con punto (`.danger`) y los ajustes se encadenan (`.size("sm").disabled()`). Su CSS también funciona solo, en Angular, React o cualquier HTML.',
+      'La documentación, con todos los componentes y ejemplos que se editan en vivo, está en manuelosmadev.github.io/tangerine-ui.',
+    ],
+    code: 'import { Card, Input, Button, Modal, Row, toast, Toaster } from "tangerine-lang-ui"
+
+struct App {
+  @State var correo = ""
+  @State var abierto = false
+
+  view {
+    Card("Suscríbete", "Te avisamos de cada versión") {
+      Input("Correo", $correo, "email").placeholder("tu@correo.com")
+      Row(8) {
+        Button("Suscribirme", || toast("¡Gracias!", "success"))
+        Button("Más info", || { abierto = true }, .ghost)
+      }
+    }
+    Modal($abierto, "Tangerine UI") {
+      p { "Componentes listos para Tangerine." }
+    }
+    Toaster()
+  }
+}
+
+mount("#app", App)',
+    runnable: false,
+    table: {
+      columns: ["Grupo", "Componentes"],
+      rows: [
+        ['Formularios', '`Button`, `Input`, `Textarea`, `Select`, `Checkbox`, `Switch`, `RadioGroup` y más'],
+        ['Contenedores', '`Card`, `Modal`, `Tabs`'],
+        ['Feedback', '`Alert`, `toast` y `Toaster`, `Progress`, `Spinner`, `Skeleton`'],
+        ['Datos', '`Table`, `Badge`, `Avatar`, `Kbd`'],
+        ['Layout', '`Stack`, `Row`, `Grid`, `Divider`'],
+      ],
+    },
+  },
+  {
     id: "frameworks",
     group: "Componentes",
     title: "En Angular, React y Vue",

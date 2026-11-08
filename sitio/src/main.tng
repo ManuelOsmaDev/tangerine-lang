@@ -22,6 +22,7 @@ let nav_links = {}
 for (key, label) in { inicio: "Inicio", guia: "Guía", playground: "Playground" } {
   nav_links[key] = link(nav, "nav-enlace", label, key)
 }
+attr(make(nav, "a", "nav-enlace nav-ui", "UI ↗"), "href", "https://manuelosmadev.github.io/tangerine-ui/")
 make(bar, "span", "version", "v" + version())
 
 let views = {
@@ -44,6 +45,7 @@ let footer_links = make(footer_inner, "nav", "pie-enlaces", nil)
 attr(footer_links, "aria-label", "Pie de página")
 link(footer_links, nil, "Guía", "guia")
 link(footer_links, nil, "Playground", "playground")
+attr(make(footer_links, "a", nil, "Tangerine UI"), "href", "https://manuelosmadev.github.io/tangerine-ui/")
 
 // ── Routing ─────────────────────────────────────
 
