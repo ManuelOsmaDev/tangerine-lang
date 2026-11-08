@@ -1,5 +1,10 @@
 # Cambios
 
+## 5.2.2
+
+- Dentro de un `view`, lo que va después de `let x =` o de `x =` es código normal: `let clave = if ... { a } else { b }` ya no agrega `a` o `b` a la vista.
+- El README presenta Tangerine UI 0.2, con 48 componentes.
+
 ## 5.2.1
 
 - El README y la página de npm presentan [Tangerine UI](https://manuelosmadev.github.io/tangerine-ui/) (`tangerine add tangerine-lang-ui`), la librería de componentes.
