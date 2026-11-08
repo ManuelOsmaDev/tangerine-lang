@@ -194,7 +194,7 @@ export function parser(tokens, opciones) {
         const target = binding();
         if (accept(":")) skipType();
         let value = null;
-        if (accept("=")) value = expression();
+        if (accept("=")) value = codeExpr(); // dentro de un view, el valor es código normal
         else if (t.type === "let")
           throw fail(`let ${Array.isArray(target) ? "(...)" : target} necesita un valor. Usa var si lo vas a asignar después`, t);
         endStmt();
@@ -298,7 +298,7 @@ export function parser(tokens, opciones) {
     if (ASSIGN_OPS.has(peek().type)) {
       const opTok = tokens[pos++];
       if (!ASSIGNABLE.has(exp.type)) throw fail("No se puede asignar a esta expresión", opTok);
-      const value = expression();
+      const value = codeExpr();
       endStmt();
       return { type: "assign", target: exp, op: opTok.type, value, line: L };
     }

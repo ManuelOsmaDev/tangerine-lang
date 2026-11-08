@@ -167,3 +167,18 @@ render_html(P())`);
     expect(valor).toBe('<section class="b"><h3>Hola</h3><p>dentro</p></section>');
   });
 });
+
+describe("let dentro de un view", () => {
+  it("let x = if ... es código normal, no parte de la vista", () => {
+    const { valor } = correr(`
+struct A {
+  var o = "Semana"
+  view {
+    let clave = if type_of(o) == "List" { o[0] } else { o }
+    p { clave }
+  }
+}
+render_html(A())`);
+    expect(valor).toBe("<p>Semana</p>");
+  });
+});

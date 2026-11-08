@@ -40,7 +40,7 @@ struct Contador {
 
 ### Tangerine UI
 
-La librería oficial de componentes: 23 componentes accesibles, con modo oscuro y temas con variables CSS. Se escriben como en SwiftUI y su CSS también funciona en Angular, React o cualquier HTML. Su web, con ejemplos que se editan en vivo, está hecha con Tangerine.
+La librería oficial de componentes: 48 componentes accesibles, con modo oscuro y temas con variables CSS. Se escriben como en SwiftUI y su CSS también funciona en Angular, React o cualquier HTML. Su web, con ejemplos que se editan en vivo, está hecha con Tangerine.
 
 ```bash
 tangerine add tangerine-lang-ui
