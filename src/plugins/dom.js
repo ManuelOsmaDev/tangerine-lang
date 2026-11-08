@@ -40,7 +40,7 @@ export function dom() {
         const custom = v.tag.includes("-");
         for (const k of Object.keys(prev)) if (!(k in v.attrs)) { el.removeAttribute(k); if (custom) el[camel(k)] = undefined; }
         for (const k of Object.keys(v.attrs)) {
-          if (k === "key") continue;
+          if (k === "key" || k === "ref" || k === "raw") continue;
           let x = norm(v.attrs[k]);
           if (isState(x)) x = x.get();
           if (custom && x !== null && typeof x !== "string") { el[camel(k)] = x; continue; }
@@ -100,6 +100,9 @@ export function dom() {
         el.__tngKey = keyOf(v);
         update(el, v);
         if (!esComponente(v.tag)) for (const c of v.children) el.appendChild(crear(c));
+        // { ref: |el| ... } recibe el elemento real cuando ya está en la página.
+        const ref = norm(v.attrs.ref);
+        if (ref) queueMicrotask(() => invoke(ref, [el]));
         return el;
       }
 
@@ -128,7 +131,7 @@ export function dom() {
           else if (typeof v === "string") { if (d.data !== v) d.data = v; }
           else {
             update(d, v);
-            if (!esComponente(v.tag)) patch(d, v.children);
+            if (!esComponente(v.tag) && !truthy(v.attrs.raw)) patch(d, v.children);
           }
           const actual = parent.childNodes[i];
           if (actual !== d) parent.insertBefore(d, actual || null);
@@ -149,7 +152,8 @@ export function dom() {
           else if (typeof v === "string") { if (d.data !== v) d.data = v; }
           else {
             update(d, v);
-            if (!esComponente(v.tag)) patch(d, v.children);
+            // { raw: true }: lo de adentro lo maneja otro código (un gráfico, un editor...).
+            if (!esComponente(v.tag) && !truthy(v.attrs.raw)) patch(d, v.children);
           }
           i++;
         }

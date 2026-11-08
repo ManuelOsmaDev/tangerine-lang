@@ -476,6 +476,24 @@ export function parser(tokens, opciones) {
     return { type: "elem", tag, args: list, content, action, line: L };
   }
 
+  // Un componente dentro de un view, como en SwiftUI: Card("Título", .destacada) { hijos }
+  // .nombre en los argumentos llega como el texto "nombre". El bloque llega como `children`.
+  function comp() {
+    const t = tokens[pos++], L = t.line;
+    const list = [];
+    if (accept("(")) {
+      while (!is(")")) {
+        if (is("eof")) throw fail(`Falta ')' para cerrar ${t.value}(`);
+        if (is(".") && peek(1).type === "id") { pos++; list.push({ type: "cls", name: tokens[pos++].value, line: L }); }
+        else list.push(codeExpr());
+        if (!accept(",")) break;
+      }
+      expect(")", `')' para cerrar ${t.value}(`);
+    }
+    const content = is("{") && sameLine() ? block() : null;
+    return { type: "comp", fn: { type: "var", name: t.value, line: L }, args: list, content, line: L };
+  }
+
   function primary() {
     const t = peek(), L = t.line;
     switch (t.type) {
@@ -495,6 +513,7 @@ export function parser(tokens, opciones) {
         const next = peek(1);
         const opens = next.line === t.line && (next.type === "(" || next.type === "{");
         if (inView > 0 && noBrace === 0 && opens && (TAGS.has(t.value) || t.value === "element")) return elem();
+        if (inView > 0 && noBrace === 0 && opens && /^[A-Z]/.test(t.value)) return comp();
         pos++;
         return { type: "var", name: t.value, line: L };
       }
@@ -610,6 +629,7 @@ export function sx(n) {
     case "export": return `(export ${sx(n.decl)})`;
     case "cls": return "." + n.name;
     case "bindref": return "$" + n.name;
+    case "comp": return `(${n.fn.name}${n.args.map((a) => " " + sx(a)).join("")}${n.content ? " " + sx(n.content) : ""})`;
     case "elem": {
       const tag = n.tag.type === "lit" ? n.tag.value : sx(n.tag);
       const args = n.args.map((a) => " " + sx(a)).join("");

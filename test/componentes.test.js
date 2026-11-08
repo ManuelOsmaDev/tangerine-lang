@@ -119,3 +119,35 @@ render_html(Pagina())`);
     expect(valor).toBe(1);
   });
 });
+
+describe("componentes con contenido, como en SwiftUI", () => {
+  it("Card(\"Título\") { ... } recibe el bloque en children", () => {
+    const { valor } = correr(`
+struct Card {
+  var titulo = ""
+  var variante = "normal"
+  init(t, v = "normal") { titulo = t; variante = v }
+  view {
+    section({ class: "card card-{variante}" }) {
+      h3 { titulo }
+      div(.cuerpo) { children }
+    }
+  }
+}
+struct Pagina {
+  @State var n = 2
+  view {
+    Card("Hola", .destacada) {
+      p { "Tienes {n} mensajes" }
+      if n > 1 { strong { "¡Muchos!" } }
+    }
+    Card("Vacía")
+  }
+}
+render_html(Pagina())`);
+    expect(valor).toBe(
+      '<section class="card card-destacada"><h3>Hola</h3><div class="cuerpo"><p>Tienes 2 mensajes</p><strong>¡Muchos!</strong></div></section>' +
+        '<section class="card card-normal"><h3>Vacía</h3><div class="cuerpo"></div></section>'
+    );
+  });
+});

@@ -1,5 +1,12 @@
 # Cambios
 
+## 5.2.0
+
+- **Componentes con contenido, como en SwiftUI**: `Card("Título", .destacada) { p { "hola" } }`. El bloque llega al componente como `children`, y `.nombre` en los argumentos llega como el texto `"nombre"`.
+- **`{ ref: |el| ... }`** recibe el elemento real cuando ya está en la página.
+- **`{ raw: true }`** deja que otro código maneje lo que hay dentro de un elemento (un gráfico, un editor) sin que el view lo borre al redibujar.
+- Base de [Tangerine UI](https://manuelosmadev.github.io/tangerine-ui/), la librería de componentes.
+
 ## 5.1.0
 
 - **`async fn` y `await`**: funciones, métodos y closures que esperan sin congelar la página. `await` va al inicio de la línea (`let x = await f()`), también dentro de `if`, `for`, `while` y `do/catch`.

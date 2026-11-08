@@ -402,6 +402,8 @@ render_html(Contador())             // HTML como texto (Node o navegador)
 
 - Las etiquetas (`div`, `p`, `span`, `button`, `input`, `ul`, `li`, `a`, `h1`...`h6`, `section`, etc.) solo crean elementos dentro de `view { }` y cuando van seguidas de `(` o `{` en la misma línea. Fuera del view son nombres normales.
 - `.nombre-con-guion` funciona como clase. En un mapa, `class: valor` agrega una clase si `valor` no es `nil`/`false`.
+- Componente con contenido: `Card("Título", .variante) { hijos }` → el struct recibe args en `init` (`.variante` llega como `"variante"`) y el bloque en el campo `children` (VNode; `nil` si no hay bloque). En su view escribe `children` donde va el contenido.
+- `{ ref: |el| ... }` se llama con el elemento DOM recién creado; `{ raw: true }` evita que el patch toque sus hijos.
 - `tangerine build --componentes` genera `dist/componentes.js` (intérprete + módulos + CSS de `styles`).
 - `@Component("x")` exige una etiqueta en minúsculas con guion y un `view`.
 

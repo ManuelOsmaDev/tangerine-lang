@@ -42,7 +42,7 @@ export function toHTML(v) {
   let attrs = "";
   if (v.classes.length) attrs += ` class="${escapar(v.classes.join(" "))}"`;
   for (const k of Object.keys(v.attrs)) {
-    if (k === "key") continue;
+    if (k === "key" || k === "ref" || k === "raw") continue;
     const x = norm(v.attrs[k]);
     if (x === null || x === false) continue;
     attrs += x === true ? ` ${k}` : ` ${k}="${escapar(show(x))}"`;

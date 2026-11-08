@@ -594,6 +594,21 @@ export function createInterpreter(host) {
         if (!env.has(n)) env.get(n, e.line);
         return makeBinding(() => env.get(n, e.line), (v) => env.set(n, v, e.line));
       }
+      case "comp": {
+        const f = evaluate(e.fn, env);
+        const args = e.args.map((a) => (a.type === "cls" ? a.name : evaluate(a, env)));
+        let children = null;
+        if (e.content) {
+          children = new VNode(null);
+          const prev = VIEW;
+          VIEW = children.children;
+          try { runBlock(e.content, new Env(env)); } finally { VIEW = prev; }
+        }
+        const r = call(f, args, e.line);
+        // El contenido del bloque queda en `children`; el view del componente lo pone donde quiera.
+        if (r instanceof Instance && (children || !("children" in r.fields))) r.fields.children = children;
+        return r;
+      }
       case "elem": {
         const node = new VNode(show(evaluate(e.tag, env)));
         for (const a of e.args) {

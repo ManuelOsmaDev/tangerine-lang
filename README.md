@@ -152,7 +152,29 @@ mount("#app", Tareas)
 | `mount("#app", App)` | Dibuja un struct con view en la página. |
 | `render_html(App())` | El HTML del view como texto: sirve en el servidor y en pruebas. |
 
-Un struct con `view` también se puede usar dentro de otro view: `div { Saludo("Ana") }`.
+Un struct con `view` también se puede usar dentro de otro view: `div { Saludo("Ana") }`. Si le pasas un bloque, como en SwiftUI, lo recibe en `children`:
+
+```swift
+struct Card {
+  var titulo = ""
+  init(t) { titulo = t }
+  view {
+    section(.card) {
+      h3 { titulo }
+      children
+    }
+  }
+}
+
+// en otro view:
+Card("Perfil") {
+  p { "Hola, {nombre}" }
+}
+```
+
+`{ ref: |el| ... }` te da el elemento real cuando aparece, y `{ raw: true }` hace que el view no toque lo que hay dentro (útil para gráficos o editores de otras librerías).
+
+¿Quieres botones, inputs, modales y más ya hechos? Usa [Tangerine UI](https://manuelosmadev.github.io/tangerine-ui/).
 
 ## Usar tus componentes en Angular, React o Vue
 

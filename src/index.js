@@ -7,7 +7,7 @@ import { show, truthy, makeMap, isMap, typeOf, fromJS, toJS } from "./valores.js
 import { reactivo } from "./plugins/reactivo.js";
 import { componentes } from "./plugins/componentes.js";
 
-export const VERSION = "5.1.0";
+export const VERSION = "5.2.0";
 
 const globalPlugins = [];
 

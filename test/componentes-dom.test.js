@@ -239,3 +239,25 @@ mount("#app", Lista)`);
     expect([...app.querySelectorAll("li span")].map((x) => x.textContent)).toEqual(["c", "a"]);
   });
 });
+
+describe("ref y raw", () => {
+  it("ref recibe el elemento y raw deja sus hijos en paz", async () => {
+    const { app } = nueva(`
+struct Grafico {
+  @State var n = 0
+  view {
+    p(.n) { "{n}" }
+    div(.lienzo, { raw: true, ref: |el| el_text(el) })
+    button(.mas) { n += 1 }
+  }
+}
+fn el_text(nodo) { append(nodo, el("canvas", "externo", nil)) }
+mount("#app", Grafico)`);
+    await new Promise((r) => setTimeout(r, 0));
+    expect(app.querySelector(".lienzo canvas.externo")).not.toBeNull();
+    clic(app.querySelector(".mas"));
+    expect(app.querySelector(".n").textContent).toBe("1");
+    expect(app.querySelector(".lienzo canvas.externo")).not.toBeNull();
+    expect(app.querySelector(".lienzo").hasAttribute("raw")).toBe(false);
+  });
+});
