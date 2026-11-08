@@ -1,5 +1,9 @@
 # Cambios
 
+## 5.2.1
+
+- El README y la página de npm presentan [Tangerine UI](https://manuelosmadev.github.io/tangerine-ui/) (`tangerine add tangerine-lang-ui`), la librería de componentes.
+
 ## 5.2.0
 
 - **Componentes con contenido, como en SwiftUI**: `Card("Título", .destacada) { p { "hola" } }`. El bloque llega al componente como `children`, y `.nombre` en los argumentos llega como el texto `"nombre"`.

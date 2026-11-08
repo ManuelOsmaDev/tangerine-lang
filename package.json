@@ -1,6 +1,6 @@
 {
   "name": "tangerine-lang",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "Tangerine: micro framework con sintaxis de Swift y Angular. Tus componentes son Web Components que funcionan en Angular, React, Vue o HTML",
   "keywords": [
     "tangerine",

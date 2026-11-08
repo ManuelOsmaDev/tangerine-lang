@@ -34,7 +34,37 @@ struct Contador {
 
 **Web oficial, guía y playground:** https://manuelosmadev.github.io/tangerine-lang/
 
+**Componentes listos para usar:** [Tangerine UI](https://manuelosmadev.github.io/tangerine-ui/), con botones, formularios, modales, tablas y avisos. Se instala con `tangerine add tangerine-lang-ui`.
+
 ## Hecho con Tangerine
+
+### Tangerine UI
+
+La librería oficial de componentes: 23 componentes accesibles, con modo oscuro y temas con variables CSS. Se escriben como en SwiftUI y su CSS también funciona en Angular, React o cualquier HTML. Su web, con ejemplos que se editan en vivo, está hecha con Tangerine.
+
+```bash
+tangerine add tangerine-lang-ui
+```
+
+```swift
+import { Card, Input, Button, toast, Toaster } from "tangerine-lang-ui"
+
+struct Suscribirse {
+  @State var correo = ""
+
+  view {
+    Card("Suscríbete") {
+      Input("Correo", $correo, "email")
+      Button("Enviar", || toast("¡Gracias!", "success"))
+    }
+    Toaster()
+  }
+}
+```
+
+- Web y documentación: https://manuelosmadev.github.io/tangerine-ui/
+- npm: https://www.npmjs.com/package/tangerine-lang-ui
+- Código: https://github.com/ManuelOsmaDev/tangerine-ui
 
 ### Citrus
 
@@ -174,7 +204,7 @@ Card("Perfil") {
 
 `{ ref: |el| ... }` te da el elemento real cuando aparece, y `{ raw: true }` hace que el view no toque lo que hay dentro (útil para gráficos o editores de otras librerías).
 
-¿Quieres botones, inputs, modales y más ya hechos? Usa [Tangerine UI](https://manuelosmadev.github.io/tangerine-ui/).
+¿Quieres botones, inputs, modales y más ya hechos? Usa [Tangerine UI](https://manuelosmadev.github.io/tangerine-ui/): `tangerine add tangerine-lang-ui`.
 
 ## Usar tus componentes en Angular, React o Vue
 
