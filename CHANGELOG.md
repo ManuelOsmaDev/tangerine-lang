@@ -1,5 +1,9 @@
 # Cambios
 
+## 5.2.3
+
+- `package.json` declara la licencia MIT, la misma del archivo `LICENSE`.
+
 ## 5.2.2
 
 - Dentro de un `view`, lo que va después de `let x =` o de `x =` es código normal: `let clave = if ... { a } else { b }` ya no agrega `a` o `b` a la vista.
